@@ -1,6 +1,6 @@
 module github.com/fabiankachlock/log-rush-simple-server
 
-go 1.17
+go 1.18
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
