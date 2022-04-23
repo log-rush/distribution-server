@@ -12,6 +12,13 @@ definitions:
       message:
         type: string
     type: object
+  http.LogStreamsResponse:
+    properties:
+      streams:
+        items:
+          $ref: '#/definitions/domain.LogStream'
+        type: array
+    type: object
   http.SuccessResponse:
     properties:
       success:
@@ -71,8 +78,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/http.SuccessResponse'
-        "409":
-          description: Conflict
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/http.ErrorResponse'
         "422":
@@ -84,6 +91,24 @@ paths:
           schema:
             $ref: '#/definitions/http.ErrorResponse'
       summary: unregister a logstream
+      tags:
+      - logstream
+  /streams:
+    get:
+      description: get all available logstreams on the server
+      operationId: list-stream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.LogStreamsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: list all streams
       tags:
       - logstream
 swagger: "2.0"

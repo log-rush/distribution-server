@@ -27,13 +27,20 @@ type SuccessResponse struct {
 	Success bool `json:"success"`
 }
 
+type LogStreamsResponse struct {
+	Streams []domain.LogStream `json:"streams"`
+}
+
 func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 	handler := &LogStreamHttpHandler{
 		useCase: us,
 	}
-	streams := app.Group("/stream")
 
+	app.Get("/streams", handler.ListStreams)
+
+	streams := app.Group("/stream")
 	streams.Post("/register", handler.RegisterStream)
+	streams.Post("/unregister", handler.UnregisterStream)
 }
 
 // Register Streams godoc
@@ -78,7 +85,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} SuccessResponse
-// @Failure 409 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
 // @Failure 422 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
@@ -99,6 +106,28 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 	}
 
 	c.JSON(SuccessResponse{true})
+	return c.SendStatus(http.StatusOK)
+}
+
+// List Streams godoc
+// @ID list-stream
+// @Router /streams [get]
+// @Tags logstream
+// @Description get all available logstreams on the server
+// @Summary list all streams
+// @Produce json
+// @Success 200 {object} LogStreamsResponse
+// @Failure 500 {object} ErrorResponse
+func (h *LogStreamHttpHandler) ListStreams(c *fiber.Ctx) error {
+	ctx := c.Context()
+
+	streams, err := h.useCase.GetAvailableStreams(ctx)
+	if err != nil {
+		c.JSON(ErrorResponse{err.Error()})
+		return c.SendStatus(getStatusCode(err))
+	}
+
+	c.JSON(LogStreamsResponse{streams})
 	return c.SendStatus(http.StatusOK)
 }
 

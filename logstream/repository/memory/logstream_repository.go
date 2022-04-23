@@ -45,3 +45,11 @@ func (repo *logStreamRepository) DeleteStream(ctx context.Context, id string) er
 	}
 	return domain.ErrStreamNotFound
 }
+
+func (repo *logStreamRepository) ListStreams(ctx context.Context) ([]domain.LogStream, error) {
+	streams := make([]domain.LogStream, len(*repo.streams))
+	for _, stream := range *repo.streams {
+		streams = append(streams, stream)
+	}
+	return streams, nil
+}

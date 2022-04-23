@@ -86,8 +86,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/http.SuccessResponse"
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/http.ErrorResponse"
                         }
@@ -96,6 +96,33 @@ const docTemplate = `{
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/streams": {
+            "get": {
+                "description": "get all available logstreams on the server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logstream"
+                ],
+                "summary": "list all streams",
+                "operationId": "list-stream",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.LogStreamsResponse"
                         }
                     },
                     "500": {
@@ -125,6 +152,17 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "http.LogStreamsResponse": {
+            "type": "object",
+            "properties": {
+                "streams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.LogStream"
+                    }
                 }
             }
         },

@@ -54,3 +54,15 @@ func (u *logStreamUseCase) SubscribeToStream(ctx context.Context, id string) (do
 
 	return stream.Stream, nil
 }
+
+func (u *logStreamUseCase) GetAvailableStreams(ctx context.Context) ([]domain.LogStream, error) {
+	context, cancel := context.WithTimeout(ctx, u.timeout)
+	defer cancel()
+
+	streams, err := u.streamsRepo.ListStreams(context)
+	if err != nil {
+		return nil, err
+	}
+
+	return streams, nil
+}
