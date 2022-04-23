@@ -1,0 +1,59 @@
+basePath: /
+definitions:
+  domain.LogStream:
+    properties:
+      alias:
+        type: string
+      id:
+        type: string
+    type: object
+  http.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:7000
+info:
+  contact:
+    email: contact@fabiankachlock.dev
+    name: API Support
+  description: this is an example log-rush server
+  license:
+    name: n.a.
+    url: n.a.
+  title: log-rush simple server
+  version: "1.0"
+paths:
+  /stream/register:
+    post:
+      consumes:
+      - application/json
+      description: create a new logstream on the server so that client can subscribe
+        to it
+      operationId: register-stream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.LogStream'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: register a log stream
+      tags:
+      - logstream
+swagger: "2.0"
+tags:
+- description: all endpoint for logstreams
+  name: logstream

@@ -28,12 +28,24 @@ func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 	streams.Post("/register", handler.RegisterStream)
 }
 
+// Register Streams godoc
+// @ID register-stream
+// @Router /stream/register [post]
+// @Tags logstream
+// @Description create a new logstream on the server so that client can subscribe to it
+// @Summary register a logstream
+// @Accept json
+// @Produce json
+// @Success 200 {object} domain.LogStream
+// @Failure 409 {object} ErrorResponse
+// @Failure 422 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
 func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 	ctx := c.Context()
 	payload := RegisterRequest{}
 
 	if err := c.BodyParser(&payload); err != nil {
-		c.JSON(err.Error())
+		c.JSON(ErrorResponse{err.Error()})
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
