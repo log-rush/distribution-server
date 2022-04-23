@@ -9,6 +9,9 @@ import (
 	_lsRepo "github.com/fabiankachlock/log-rush-simple-server/logstream/repository/memory"
 	_lsUseCase "github.com/fabiankachlock/log-rush-simple-server/logstream/usecase"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 )
 
@@ -25,6 +28,12 @@ import (
 // @Tag.description all endpoint for logstreams
 func main() {
 	app := fiber.New()
+
+	app.Use(logger.New(logger.Config{
+		Format: "[${time}] ${method} - ${path} - ${status} (${latency}) \n",
+	}))
+	app.Use(cors.New())
+	app.Use(recover.New())
 
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
