@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"time"
 
 	_ "github.com/fabiankachlock/log-rush-simple-server/docs"
 	_lsHttpHandler "github.com/fabiankachlock/log-rush-simple-server/logstream/delivery/http"
+	_lsRepo "github.com/fabiankachlock/log-rush-simple-server/logstream/repository/memory"
 	_lsUseCase "github.com/fabiankachlock/log-rush-simple-server/logstream/usecase"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -26,7 +28,8 @@ func main() {
 
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
-	logStreamUseCase := _lsUseCase.NewLogStreamUSeCase()
+	logStreamRepo := _lsRepo.NewLogStreamRepository()
+	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3)
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {

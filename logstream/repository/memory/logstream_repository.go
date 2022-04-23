@@ -45,12 +45,3 @@ func (repo *logStreamRepository) DeleteStream(ctx context.Context, id string) er
 	}
 	return domain.ErrStreamNotFound
 }
-
-func (repo *logStreamRepository) CreateSubscription(ctx context.Context, streamId, subscriberId string) (domain.LogsChannel, error) {
-	entity, err := repo.GetStream(ctx, streamId)
-	if err != nil {
-		return nil, err
-	}
-
-	return entity.Stream, nil
-}

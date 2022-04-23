@@ -1,3 +1,3 @@
 #!/bin/sh
 
-swag init -d ./app,./logstream/delivery/http
+swag init -d ./app,./logstream/delivery/http,./domain
