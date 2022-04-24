@@ -15,6 +15,5 @@ type LogUseCase interface {
 
 type LogRepository interface {
 	AddLogs(ctx context.Context, stream string, logs *[]Log) error
-	SetLogs(ctx context.Context, stream string, logs *[]Log) error
 	FetchLogs(ctx context.Context, stream string) ([]Log, error)
 }

@@ -42,3 +42,7 @@ func (q *MaxLenQueue[T]) Peek() T {
 	}
 	return (*q.slc)[0]
 }
+
+func (q *MaxLenQueue[T]) GetAll() []T {
+	return (*q.slc)
+}

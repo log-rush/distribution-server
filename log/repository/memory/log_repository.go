@@ -4,15 +4,18 @@ import (
 	"context"
 
 	"github.com/fabiankachlock/log-rush-simple-server/domain"
+	"github.com/fabiankachlock/log-rush-simple-server/log/repository"
 )
 
 type logRepository struct {
-	logs map[string]*[]domain.Log
+	logs            map[string]*repository.MaxLenQueue[domain.Log]
+	maxStoredAmount int
 }
 
-func NewLogRepository() domain.LogRepository {
+func NewLogRepository(amountOfStoredLogs int) domain.LogRepository {
 	return &logRepository{
-		logs: map[string]*[]domain.Log{},
+		logs:            map[string]*repository.MaxLenQueue[domain.Log]{},
+		maxStoredAmount: amountOfStoredLogs,
 	}
 }
 
@@ -24,24 +27,9 @@ func (repo *logRepository) AddLogs(ctx context.Context, streamId string, logs *[
 
 	for idx := range *logs {
 		(*logs)[idx].Stream = streamId
+		repo.logs[streamId].Enqueue((*logs)[idx])
 	}
 
-	newSlice := append(*(repo.logs[streamId]), (*logs)...)
-	repo.logs[streamId] = &newSlice
-	return nil
-}
-
-func (repo *logRepository) SetLogs(ctx context.Context, streamId string, logs *[]domain.Log) error {
-	err := repo.ensureStream(ctx, streamId)
-	if err != nil {
-		return err
-	}
-
-	for idx := range *logs {
-		(*logs)[idx].Stream = streamId
-	}
-
-	repo.logs[streamId] = logs
 	return nil
 }
 
@@ -51,7 +39,7 @@ func (repo *logRepository) FetchLogs(ctx context.Context, streamId string) ([]do
 		return make([]domain.Log, 0), domain.ErrStreamNotFound
 	}
 
-	return *logs, nil
+	return (*logs).GetAll(), nil
 }
 
 func (repo *logRepository) ensureStream(ctx context.Context, streamId string) error {
@@ -59,7 +47,10 @@ func (repo *logRepository) ensureStream(ctx context.Context, streamId string) er
 	if ok {
 		return nil
 	}
-	newStream := make([]domain.Log, 0)
-	repo.logs[streamId] = &newStream
+
+	queue := repository.NewMaxLenQueue(repo.maxStoredAmount, func() domain.Log {
+		return domain.Log{}
+	})
+	repo.logs[streamId] = &queue
 	return nil
 }
