@@ -9,6 +9,7 @@ import (
 	_lRepo "github.com/fabiankachlock/log-rush-simple-server/log/repository/memory"
 	_lUseCase "github.com/fabiankachlock/log-rush-simple-server/log/usecase"
 	_lsHttpHandler "github.com/fabiankachlock/log-rush-simple-server/logstream/delivery/http"
+	_lsWsHandler "github.com/fabiankachlock/log-rush-simple-server/logstream/delivery/ws"
 	_lsRepo "github.com/fabiankachlock/log-rush-simple-server/logstream/repository/memory"
 	_lsUseCase "github.com/fabiankachlock/log-rush-simple-server/logstream/usecase"
 	"github.com/gofiber/fiber/v2"
@@ -50,6 +51,7 @@ func main() {
 
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)
+	_lsWsHandler.NewLogStreamWsHandler(app)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))
