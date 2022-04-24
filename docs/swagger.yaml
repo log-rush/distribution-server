@@ -7,10 +7,25 @@ definitions:
       id:
         type: string
     type: object
-  http.ErrorResponse:
+  github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse:
     properties:
       message:
         type: string
+    type: object
+  github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.SuccessResponse:
+    properties:
+      success:
+        type: boolean
     type: object
   http.LogStreamsResponse:
     properties:
@@ -18,11 +33,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.LogStream'
         type: array
-    type: object
-  http.SuccessResponse:
-    properties:
-      success:
-        type: boolean
     type: object
 host: localhost:7000
 info:
@@ -36,6 +46,62 @@ info:
   title: log-rush simple server
   version: "1.0"
 paths:
+  /batch:
+    post:
+      consumes:
+      - application/json
+      description: add a bunch of logs at once to a stream
+      operationId: batch
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse'
+      summary: push multiple logs at once
+      tags:
+      - log
+  /log:
+    post:
+      consumes:
+      - application/json
+      description: add a new log on a logstream
+      operationId: log
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse'
+      summary: push a log
+      tags:
+      - log
   /stream/register:
     post:
       consumes:
@@ -53,15 +119,15 @@ paths:
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
       summary: register a logstream
       tags:
       - logstream
@@ -77,19 +143,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/http.SuccessResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.SuccessResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
       summary: unregister a logstream
       tags:
       - logstream
@@ -107,11 +173,13 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.ErrorResponse'
+            $ref: '#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse'
       summary: list all streams
       tags:
       - logstream
 swagger: "2.0"
 tags:
-- description: all endpoint for logstreams
+- description: all endpoints for logstreams
   name: logstream
+- description: all endpoints for logs
+  name: log

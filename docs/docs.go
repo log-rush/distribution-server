@@ -23,6 +23,90 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/batch": {
+            "post": {
+                "description": "add a bunch of logs at once to a stream",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "log"
+                ],
+                "summary": "push multiple logs at once",
+                "operationId": "batch",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/log": {
+            "post": {
+                "description": "add a new log on a logstream",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "log"
+                ],
+                "summary": "push a log",
+                "operationId": "log",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stream/register": {
             "post": {
                 "description": "create a new logstream on the server so that client can subscribe to it",
@@ -47,19 +131,19 @@ const docTemplate = `{
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -83,25 +167,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/http.SuccessResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -128,7 +212,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -147,11 +231,35 @@ const docTemplate = `{
                 }
             }
         },
-        "http.ErrorResponse": {
+        "github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
@@ -165,20 +273,16 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "http.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
         }
     },
     "tags": [
         {
-            "description": "all endpoint for logstreams",
+            "description": "all endpoints for logstreams",
             "name": "logstream"
+        },
+        {
+            "description": "all endpoints for logs",
+            "name": "log"
         }
     ]
 }`

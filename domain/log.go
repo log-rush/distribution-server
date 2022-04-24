@@ -4,7 +4,7 @@ import "context"
 
 type Log struct {
 	Message   string `json:"message"`
-	TimeStamp string `json:"timestamp"`
+	TimeStamp int    `json:"timestamp"`
 	Stream    string `json:"stream"`
 }
 

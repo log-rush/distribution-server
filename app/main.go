@@ -5,6 +5,9 @@ import (
 	"time"
 
 	_ "github.com/fabiankachlock/log-rush-simple-server/docs"
+	_lHttpHandler "github.com/fabiankachlock/log-rush-simple-server/log/delivery/http"
+	_lRepo "github.com/fabiankachlock/log-rush-simple-server/log/repository/memory"
+	_lUseCase "github.com/fabiankachlock/log-rush-simple-server/log/usecase"
 	_lsHttpHandler "github.com/fabiankachlock/log-rush-simple-server/logstream/delivery/http"
 	_lsRepo "github.com/fabiankachlock/log-rush-simple-server/logstream/repository/memory"
 	_lsUseCase "github.com/fabiankachlock/log-rush-simple-server/logstream/usecase"
@@ -25,7 +28,9 @@ import (
 // @host localhost:7000
 // @BasePath /
 // @Tag.name logstream
-// @Tag.description all endpoint for logstreams
+// @Tag.description all endpoints for logstreams
+// @Tag.name log
+// @Tag.description all endpoints for logs
 func main() {
 	app := fiber.New()
 
@@ -37,9 +42,14 @@ func main() {
 
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
+	logRepo := _lRepo.NewLogRepository(100)
 	logStreamRepo := _lsRepo.NewLogStreamRepository()
+
 	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3)
+	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
+
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
+	_lHttpHandler.NewLogHandler(app, logUseCase)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))
