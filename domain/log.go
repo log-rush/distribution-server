@@ -9,8 +9,8 @@ type Log struct {
 }
 
 type LogUseCase interface {
-	SendLog(ctx context.Context, log *Log) error
-	SendLogBatch(ctx context.Context, logs *[]Log) error
+	SendLog(ctx context.Context, stream string, log *Log) error
+	SendLogBatch(ctx context.Context, stream string, logs *[]Log) error
 }
 
 type LogRepository interface {
