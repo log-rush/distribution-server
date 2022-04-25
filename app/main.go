@@ -9,6 +9,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
+	_cRepo "github.com/log-rush/simple-server/clients/repository/memory"
+	_cUseCase "github.com/log-rush/simple-server/clients/usecase"
 	_ "github.com/log-rush/simple-server/docs"
 	_lHttpHandler "github.com/log-rush/simple-server/log/delivery/http"
 	_lRepo "github.com/log-rush/simple-server/log/repository/memory"
@@ -45,13 +47,15 @@ func main() {
 
 	logRepo := _lRepo.NewLogRepository(100)
 	logStreamRepo := _lsRepo.NewLogStreamRepository()
+	clientsRepo := _cRepo.NewClientsMemoryrepository()
 
 	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3)
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
+	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo)
 
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)
-	_lsWsHandler.NewLogStreamWsHandler(app)
+	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))

@@ -15,7 +15,8 @@ type clientsUseCase struct {
 
 func NewClientsUseCase(clientsRepo domain.ClientsRepository) domain.ClientsUseCase {
 	return &clientsUseCase{
-		repo: clientsRepo,
+		repo:    clientsRepo,
+		decoder: lrp.NewDecoder(),
 	}
 }
 
@@ -44,5 +45,5 @@ func (u *clientsUseCase) handleMessage(msg []byte) {
 		// do something
 		return
 	}
-	fmt.Println(message)
+	fmt.Printf("received: %b, %s\n", message.OPCode, message.Payload)
 }
