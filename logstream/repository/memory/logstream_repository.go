@@ -38,8 +38,9 @@ func (repo *logStreamRepository) GetStream(ctx context.Context, id string) (doma
 }
 
 func (repo *logStreamRepository) DeleteStream(ctx context.Context, id string) error {
-	_, ok := (*repo.streams)[id]
+	stream, ok := (*repo.streams)[id]
 	if ok {
+		close(stream.Stream)
 		delete(*repo.streams, id)
 		return nil
 	}

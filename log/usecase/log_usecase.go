@@ -32,8 +32,7 @@ func (u *logUseCase) SendLog(ctx context.Context, streamId string, log *domain.L
 	}
 
 	errGroup.Go(func() error {
-		u.logsRepo.AddLogs(context, streamId, &[]domain.Log{*log})
-		return nil
+		return u.logsRepo.AddLogs(context, streamId, &[]domain.Log{*log})
 	})
 
 	errGroup.Go(func() error {

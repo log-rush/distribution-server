@@ -14,6 +14,7 @@ const (
 	OprUnsubscribe LRPOpcode = 66 // 0b010100 // 20
 	OprAlive       LRPOpcode = 67 // 0b001010 // 10
 	OprStillAlive  LRPOpcode = 68 // 0b001100 // 12
+	OprLog         LRPOpcode = 69 // 0b001100 // 12
 )
 
 var (

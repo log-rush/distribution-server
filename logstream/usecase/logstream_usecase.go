@@ -10,13 +10,17 @@ import (
 type logStreamUseCase struct {
 	streamsRepo domain.LogStreamRepository
 	timeout     time.Duration
+	pool        logDistributionWorkerPool
 }
 
 func NewLogStreamUseCase(repo domain.LogStreamRepository, timeout time.Duration) domain.LogStreamUseCase {
-	return &logStreamUseCase{
+	u := &logStreamUseCase{
 		streamsRepo: repo,
 		timeout:     timeout,
+		pool:        logDistributionWorkerPool{},
 	}
+	u.pool.Start()
+	return u
 }
 
 func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (domain.LogStream, error) {
@@ -27,6 +31,12 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (do
 	if err != nil {
 		return domain.LogStream{}, err
 	}
+
+	go func() {
+		for log := range stream.Stream {
+			u.pool.PostJob(log, stream.ID)
+		}
+	}()
 
 	return stream, nil
 }
