@@ -4,19 +4,19 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/fabiankachlock/log-rush-simple-server/docs"
-	_lHttpHandler "github.com/fabiankachlock/log-rush-simple-server/log/delivery/http"
-	_lRepo "github.com/fabiankachlock/log-rush-simple-server/log/repository/memory"
-	_lUseCase "github.com/fabiankachlock/log-rush-simple-server/log/usecase"
-	_lsHttpHandler "github.com/fabiankachlock/log-rush-simple-server/logstream/delivery/http"
-	_lsWsHandler "github.com/fabiankachlock/log-rush-simple-server/logstream/delivery/ws"
-	_lsRepo "github.com/fabiankachlock/log-rush-simple-server/logstream/repository/memory"
-	_lsUseCase "github.com/fabiankachlock/log-rush-simple-server/logstream/usecase"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
+	_ "github.com/log-rush/simple-server/docs"
+	_lHttpHandler "github.com/log-rush/simple-server/log/delivery/http"
+	_lRepo "github.com/log-rush/simple-server/log/repository/memory"
+	_lUseCase "github.com/log-rush/simple-server/log/usecase"
+	_lsHttpHandler "github.com/log-rush/simple-server/logstream/delivery/http"
+	_lsWsHandler "github.com/log-rush/simple-server/logstream/delivery/ws"
+	_lsRepo "github.com/log-rush/simple-server/logstream/repository/memory"
+	_lsUseCase "github.com/log-rush/simple-server/logstream/usecase"
 )
 
 // @title log-rush simple server

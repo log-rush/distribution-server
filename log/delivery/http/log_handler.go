@@ -3,8 +3,8 @@ package http
 import (
 	"net/http"
 
-	"github.com/fabiankachlock/log-rush-simple-server/domain"
 	"github.com/gofiber/fiber/v2"
+	"github.com/log-rush/simple-server/domain"
 )
 
 type LogHttpHandler struct {

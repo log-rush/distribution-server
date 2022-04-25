@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/fabiankachlock/log-rush-simple-server/domain"
+	"github.com/log-rush/simple-server/domain"
 )
 
 type logStreamUseCase struct {
