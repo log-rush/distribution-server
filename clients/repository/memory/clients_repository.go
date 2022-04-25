@@ -37,10 +37,12 @@ func (u *clientsMemoryRepository) GetClient(ctx context.Context, id string) (dom
 }
 
 func (u *clientsMemoryRepository) Remove(ctx context.Context, id string) error {
-	_, ok := u.clients[id]
+	client, ok := u.clients[id]
 	if !ok {
 		return domain.ErrClientNotFound
 	}
+	close(client.Send)
+	close(client.Receive)
 	delete(u.clients, id)
 	return nil
 }
