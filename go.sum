@@ -32,6 +32,8 @@ github.com/gofiber/fiber/v2 v2.32.0 h1:lpgcGEq1UENv27uVuOaufAhU8wUKnX8yb9L7559Ne
 github.com/gofiber/fiber/v2 v2.32.0/go.mod h1:CMy5ZLiXkn6qwthrl03YMyW1NLfj0rhxz2LKl4t7ZTY=
 github.com/gofiber/swagger v0.0.0-20220419230107-2de973ed04d8 h1:j7k5r+jeMcahA/YAw6NaVbty92pnDG6fu0PcpGkpA0k=
 github.com/gofiber/swagger v0.0.0-20220419230107-2de973ed04d8/go.mod h1:gal49FHSULvKAl9Ta+W7fRHdlTWhHPvArmsxKaIdLw4=
+github.com/gofiber/swagger v0.0.1 h1:Qwt6uehJffeMG7zla3ampguOPtAW5K4xDAmpaL1qwXk=
+github.com/gofiber/swagger v0.0.1/go.mod h1:gal49FHSULvKAl9Ta+W7fRHdlTWhHPvArmsxKaIdLw4=
 github.com/gofiber/websocket/v2 v2.0.21 h1:mQEiLXBqFsNNlJc5dzFgSGeoqoEXYvIcdBQzAZBdbL0=
 github.com/gofiber/websocket/v2 v2.0.21/go.mod h1:AOdLDGRGMr9MXH0GjHD43xR17x5lzs0pd5E0/cEKYX8=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=

@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gofiber/fiber/v2 v2.32.0
-	github.com/gofiber/swagger v0.0.0-20220419230107-2de973ed04d8
+	github.com/gofiber/swagger v0.0.1
 	github.com/gofiber/websocket/v2 v2.0.21
 	github.com/google/uuid v1.3.0
 	github.com/swaggo/swag v1.8.1

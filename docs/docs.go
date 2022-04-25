@@ -41,25 +41,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -83,25 +83,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -131,19 +131,19 @@ const docTemplate = `{
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -167,25 +167,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.SuccessResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -212,7 +212,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
                         }
                     }
                 }
@@ -231,7 +231,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.ErrorResponse": {
+        "github.com_log-rush_simple-server_log_delivery_http.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -239,7 +239,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github.com_fabiankachlock_log-rush-simple-server_log_delivery_http.SuccessResponse": {
+        "github.com_log-rush_simple-server_log_delivery_http.SuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
@@ -247,7 +247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.ErrorResponse": {
+        "github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -255,7 +255,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github.com_fabiankachlock_log-rush-simple-server_logstream_delivery_http.SuccessResponse": {
+        "github.com_log-rush_simple-server_logstream_delivery_http.SuccessResponse": {
             "type": "object",
             "properties": {
                 "success": {
