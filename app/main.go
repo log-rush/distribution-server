@@ -84,11 +84,11 @@ func main() {
 
 	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3, mainLogger.Named("[logstream]"))
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
-	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo)
+	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, mainLogger.Named("[clients]"))
 
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)
-	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase)
+	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase, mainLogger.Named("[websockets]"))
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))

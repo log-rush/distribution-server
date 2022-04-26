@@ -39,6 +39,7 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (do
 	go func() {
 		(*u.l).Debugf("[%s] starting log listener", stream.ID)
 		for log := range stream.Stream {
+			(*u.l).Debugf("[%s] received log %s ", stream.ID, log.Message)
 			u.pool.PostJob(log, stream.ID)
 		}
 		(*u.l).Debugf("[%s] stopped log listener", stream.ID)
@@ -53,7 +54,7 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) erro
 
 	err := u.streamsRepo.DeleteStream(context, id)
 	if err != nil {
-		(*u.l).Errorf("error while deleting stream: %s", err.Error())
+		(*u.l).Errorf("error while deleting stream %s: %s", id, err.Error())
 		return err
 	}
 	(*u.l).Infof("deleted stream %s", id)

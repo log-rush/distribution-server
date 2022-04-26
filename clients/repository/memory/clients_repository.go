@@ -24,6 +24,7 @@ func (u *clientsMemoryRepository) Create(ctx context.Context) (domain.Client, er
 		Send:    make(chan []byte),
 		Receive: make(chan []byte),
 	}
+	u.clients[id] = client
 
 	return client, nil
 }

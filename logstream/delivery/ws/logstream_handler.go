@@ -9,12 +9,14 @@ import (
 type logStreamWsHandler struct {
 	conns         map[string]*websocket.Conn
 	clientManager domain.ClientsUseCase
+	l             *domain.Logger
 }
 
-func NewLogStreamWsHandler(app *fiber.App, clientManager domain.ClientsUseCase) {
+func NewLogStreamWsHandler(app *fiber.App, clientManager domain.ClientsUseCase, logger domain.Logger) {
 	handler := &logStreamWsHandler{
 		conns:         map[string]*websocket.Conn{},
 		clientManager: clientManager,
+		l:             &logger,
 	}
 
 	app.Use("/subscribe", handler.AllowWebsocketUpgrades)
@@ -55,23 +57,32 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn, ctx *fiber.Ctx) {
 		conn.WriteMessage(websocket.CloseMessage, []byte{})
 		conn.Close()
 		h.clientManager.DestroyClient(ctx.Context(), client.ID)
+		(*h.l).Debugf("closed connection %s", client.ID)
 	}()
 
 	go func() {
 		for {
 			select {
 			case <-closed:
-				break
-			case <-client.Send:
-				if err = conn.WriteMessage(mt, msg); err != nil {
-					break
+				return
+			case message := <-client.Send:
+				if message == nil {
+					return
+				}
+				err = conn.WriteMessage(mt, message)
+				if err != nil {
+					(*h.l).Warnf("[%s] error while sending message %s", err)
 				}
 			}
 		}
 	}()
 
+	(*h.l).Debugf("connected %s", client.ID)
 	for {
 		if mt, msg, err = conn.ReadMessage(); err != nil {
+			if !websocket.IsCloseError(err, 1000) {
+				(*h.l).Errorf("[%s] error while receiving message %s", client.ID, err)
+			}
 			break
 		}
 		client.Receive <- msg
