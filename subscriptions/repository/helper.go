@@ -1,8 +1,8 @@
 package repository
 
-func AppendUniqueToSlice[T comparable](slc *[]T, v T) *[]T {
+func AppendUniqueToSlice[T any](slc *[]T, v T, comp func(v T) bool) *[]T {
 	for _, item := range *slc {
-		if item == v {
+		if comp(item) {
 			return slc
 		}
 	}
@@ -10,10 +10,10 @@ func AppendUniqueToSlice[T comparable](slc *[]T, v T) *[]T {
 	return &newSlice
 }
 
-func RemoveFromSlice[T comparable](slc *[]T, v T) *[]T {
+func RemoveFromSlice[T any](slc *[]T, comp func(v T) bool) *[]T {
 	var index int
 	for i, item := range *slc {
-		if item == v {
+		if comp(item) {
 			index = i
 			break
 		}
