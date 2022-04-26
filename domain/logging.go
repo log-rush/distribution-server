@@ -7,7 +7,6 @@ type Logger interface {
 	Debug(args ...interface{})
 	Debugf(template string, args ...interface{})
 	Debugw(msg string, keysAndValues ...interface{})
-	Desugar() *Logger
 	Error(args ...interface{})
 	Errorf(template string, args ...interface{})
 	Errorw(msg string, keysAndValues ...interface{})
@@ -17,7 +16,6 @@ type Logger interface {
 	Info(args ...interface{})
 	Infof(template string, args ...interface{})
 	Infow(msg string, keysAndValues ...interface{})
-	Named(name string) *Logger
 	Panic(args ...interface{})
 	Panicf(template string, args ...interface{})
 	Panicw(msg string, keysAndValues ...interface{})
@@ -25,5 +23,4 @@ type Logger interface {
 	Warn(args ...interface{})
 	Warnf(template string, args ...interface{})
 	Warnw(msg string, keysAndValues ...interface{})
-	With(args ...interface{}) *Logger
 }

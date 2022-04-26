@@ -66,7 +66,7 @@ func main() {
 	}
 	mainLogger := l.Sugar()
 
-	fiberLogger := mainLogger.Named("[fiber]")
+	fiberLogger := mainLogger.Named("[server]")
 
 	app.Use(func(c *fiber.Ctx) error {
 		c.Next()
@@ -82,7 +82,7 @@ func main() {
 	logStreamRepo := _lsRepo.NewLogStreamRepository()
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
 
-	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3)
+	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3, mainLogger.Named("[logstream]"))
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
 	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo)
 
