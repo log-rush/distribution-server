@@ -19,6 +19,8 @@ import (
 	_lsWsHandler "github.com/log-rush/simple-server/logstream/delivery/ws"
 	_lsRepo "github.com/log-rush/simple-server/logstream/repository/memory"
 	_lsUseCase "github.com/log-rush/simple-server/logstream/usecase"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // @title log-rush simple server
@@ -36,6 +38,37 @@ import (
 // @Tag.description all endpoints for logs
 func main() {
 	app := fiber.New()
+
+	config := zap.Config{
+		Level:         zap.NewAtomicLevelAt(zap.DebugLevel),
+		Development:   false,
+		DisableCaller: true,
+		Encoding:      "console",
+		OutputPaths:   []string{"stdout"},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "T",
+			LevelKey:       "L",
+			NameKey:        "N",
+			CallerKey:      "",
+			FunctionKey:    "",
+			MessageKey:     "M",
+			StacktraceKey:  "S",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+		},
+	}
+
+	l, err := config.Build()
+	defer l.Sync()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	s := l.Sugar()
+	s.Debug("test")
+	s.Info("T logger construction succeeded")
+	s.Info("logger construction succeeded")
 
 	app.Use(logger.New(logger.Config{
 		Format: "[${time}] ${method} - ${path} - ${status} (${latency}) \n",
