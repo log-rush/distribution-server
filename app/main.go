@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	_cRepo "github.com/log-rush/simple-server/clients/repository/memory"
@@ -65,14 +64,15 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	s := l.Sugar()
-	s.Debug("test")
-	s.Info("T logger construction succeeded")
-	s.Info("logger construction succeeded")
+	mainLogger := l.Sugar()
 
-	app.Use(logger.New(logger.Config{
-		Format: "[${time}] ${method} - ${path} - ${status} (${latency}) \n",
-	}))
+	fiberLogger := mainLogger.Named("[fiber]")
+
+	app.Use(func(c *fiber.Ctx) error {
+		c.Next()
+		fiberLogger.Infof("[%s] [%s] (%d) - %s", c.IP(), c.Method(), c.Response().StatusCode(), c.Path())
+		return nil
+	})
 	app.Use(cors.New())
 	app.Use(recover.New())
 
