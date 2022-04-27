@@ -35,7 +35,7 @@ func (h *logStreamWsHandler) AllowWebsocketUpgrades(c *fiber.Ctx) error {
 
 func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 	var (
-		mt  int
+		mt  int = 1
 		msg []byte
 		err error
 	)
@@ -68,7 +68,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 				}
 				err = conn.WriteMessage(mt, message)
 				if err != nil {
-					(*h.l).Warnf("[%s] error while sending message %s", err)
+					(*h.l).Warnf("[%s] error while sending message: (%d) %s", err, mt, message)
 				}
 			}
 		}

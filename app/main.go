@@ -44,9 +44,11 @@ func main() {
 	mainLogger := CreateLogger()
 	fiberLogger := mainLogger.Named("[server]")
 	config := domain.Config{
-		Timeout:               time.Millisecond * 500,
-		LogWorkers:            runtime.NumCPU() * 4,
-		MaxAmountOfStoredLogs: 5,
+		Timeout:                  time.Millisecond * 500,
+		LogWorkers:               runtime.NumCPU() * 4,
+		MaxAmountOfStoredLogs:    5,
+		ClientCheckInterval:      time.Second * 10,
+		MaxClientResponseLatency: time.Second * 10,
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
@@ -71,7 +73,7 @@ func main() {
 
 	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, config.LogWorkers, config.Timeout, mainLogger.Named("[logstream]"))
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, config.Timeout, mainLogger.Named("[logs]"))
-	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, config.Timeout, mainLogger.Named("[clients]"))
+	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, config.ClientCheckInterval, config.MaxClientResponseLatency, config.Timeout, mainLogger.Named("[clients]"))
 
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)

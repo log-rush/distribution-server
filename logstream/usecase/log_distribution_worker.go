@@ -95,7 +95,6 @@ func (w *logDistributionWorker) work() {
 		select {
 		case job := <-w.jobs:
 			(*w.l).Debugf("[%d] worker received job", w.id)
-
 			subscribers, err := (*w.repo).GetSubscribers(context.Background(), job.stream)
 			if err != nil {
 				w.results <- err
