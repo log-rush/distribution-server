@@ -18,12 +18,13 @@ type clientsUseCase struct {
 	l       *domain.Logger
 }
 
-func NewClientsUseCase(clientsRepo domain.ClientsRepository, subscriptions domain.SubscriptionsRepository, logger domain.Logger) domain.ClientsUseCase {
+func NewClientsUseCase(clientsRepo domain.ClientsRepository, subscriptions domain.SubscriptionsRepository, timeout time.Duration, logger domain.Logger) domain.ClientsUseCase {
 	return &clientsUseCase{
 		cRepo:   clientsRepo,
 		sRepo:   subscriptions,
 		decoder: lrp.NewDecoder(),
 		encoder: lrp.NewEncoder(),
+		timeout: timeout,
 		l:       &logger,
 	}
 }

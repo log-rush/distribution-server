@@ -1,6 +1,8 @@
 package ws
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 	"github.com/log-rush/simple-server/domain"
@@ -20,12 +22,7 @@ func NewLogStreamWsHandler(app *fiber.App, clientManager domain.ClientsUseCase, 
 	}
 
 	app.Use("/subscribe", handler.AllowWebsocketUpgrades)
-	app.Get("/subscribe", func(ctx *fiber.Ctx) error {
-		wsHandler := websocket.New(func(conn *websocket.Conn) {
-			handler.Connect(conn, ctx)
-		})
-		return wsHandler(ctx)
-	})
+	app.Get("/subscribe", websocket.New(handler.Connect))
 }
 
 func (h *logStreamWsHandler) AllowWebsocketUpgrades(c *fiber.Ctx) error {
@@ -36,14 +33,14 @@ func (h *logStreamWsHandler) AllowWebsocketUpgrades(c *fiber.Ctx) error {
 	return fiber.ErrUpgradeRequired
 }
 
-func (h *logStreamWsHandler) Connect(conn *websocket.Conn, ctx *fiber.Ctx) {
+func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 	var (
 		mt  int
 		msg []byte
 		err error
 	)
 
-	client, err := h.cu.NewClient(ctx.Context())
+	client, err := h.cu.NewClient(context.Background())
 	if err != nil {
 		conn.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
 		conn.Close()
@@ -56,7 +53,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn, ctx *fiber.Ctx) {
 		close(closed)
 		conn.WriteMessage(websocket.CloseMessage, []byte{})
 		conn.Close()
-		h.cu.DestroyClient(ctx.Context(), client.ID)
+		h.cu.DestroyClient(context.Background(), client.ID)
 		(*h.l).Debugf("closed connection %s", client.ID)
 	}()
 
