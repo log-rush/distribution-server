@@ -13,7 +13,6 @@ type LogsChannel chan []Log
 type LogStreamUseCase interface {
 	RegisterStream(ctx context.Context, alias string) (LogStream, error)
 	UnregisterStream(ctx context.Context, id string) error
-	SubscribeToStream(ctx context.Context, id string) (LogsChannel, error)
 	GetAvailableStreams(ctx context.Context) ([]LogStream, error)
 }
 

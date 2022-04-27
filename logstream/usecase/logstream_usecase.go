@@ -97,18 +97,6 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) erro
 	return err
 }
 
-func (u *logStreamUseCase) SubscribeToStream(ctx context.Context, id string) (domain.LogsChannel, error) {
-	context, cancel := context.WithTimeout(ctx, u.timeout)
-	defer cancel()
-
-	stream, err := u.streamsRepo.GetStream(context, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return stream.Stream, nil
-}
-
 func (u *logStreamUseCase) GetAvailableStreams(ctx context.Context) ([]domain.LogStream, error) {
 	context, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()

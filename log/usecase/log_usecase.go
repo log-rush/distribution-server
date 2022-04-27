@@ -12,6 +12,7 @@ type logUseCase struct {
 	logsRepo    domain.LogRepository
 	streamsRepo domain.LogStreamRepository
 	timeout     time.Duration
+	l           *domain.Logger
 }
 
 func NewLogUseCase(logsRepo domain.LogRepository, streamsRepo domain.LogStreamRepository, timeout time.Duration) domain.LogUseCase {
@@ -28,6 +29,7 @@ func (u *logUseCase) SendLog(ctx context.Context, streamId string, log *domain.L
 
 	stream, err := u.streamsRepo.GetStream(context, streamId)
 	if err != nil {
+		(*u.l).Errorf("error while addding log: %s", err.Error())
 		return err
 	}
 
@@ -50,12 +52,12 @@ func (u *logUseCase) SendLogBatch(ctx context.Context, streamId string, logs *[]
 
 	stream, err := u.streamsRepo.GetStream(context, streamId)
 	if err != nil {
+		(*u.l).Errorf("error while batching logs: %s", err.Error())
 		return err
 	}
 
 	errGroup.Go(func() error {
-		u.logsRepo.AddLogs(context, streamId, logs)
-		return nil
+		return u.logsRepo.AddLogs(context, streamId, logs)
 	})
 
 	errGroup.Go(func() error {
