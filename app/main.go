@@ -71,7 +71,7 @@ func main() {
 
 	app.Use(func(c *fiber.Ctx) error {
 		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
-		return nil
+		return c.Next()
 	})
 	app.Use(cors.New())
 	app.Use(recover.New())

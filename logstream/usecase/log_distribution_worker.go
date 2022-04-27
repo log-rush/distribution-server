@@ -60,7 +60,7 @@ func (p logDistributionWorkerPool) Start() {
 		worker := newWorker(i, p.jobs, p.results, p.subscriptionRepo, p.l)
 		p.workers = append(p.workers, worker)
 		go worker.work()
-		(*p.l).Debugf("[%d] started", worker.id)
+		(*p.l).Debugf("[%d] worker started", worker.id)
 	}
 }
 
@@ -74,7 +74,7 @@ func (p logDistributionWorkerPool) PostJob(log domain.Log, stream string) {
 func (p logDistributionWorkerPool) Stop() {
 	for _, worker := range p.workers {
 		worker.stop <- true
-		(*p.l).Debugf("[%d] stopped", worker.id)
+		(*p.l).Debugf("[%d] worker stopped", worker.id)
 	}
 }
 

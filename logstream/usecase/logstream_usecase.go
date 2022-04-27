@@ -5,21 +5,27 @@ import (
 	"time"
 
 	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/simple-server/pkg/lrp"
+	"golang.org/x/sync/errgroup"
 )
 
 type logStreamUseCase struct {
-	streamsRepo domain.LogStreamRepository
-	timeout     time.Duration
-	pool        logDistributionWorkerPool
-	l           *domain.Logger
+	streamsRepo       domain.LogStreamRepository
+	subscriptionsRepo domain.SubscriptionsRepository
+	pool              logDistributionWorkerPool
+	encoder           lrp.LRPEncoder
+	timeout           time.Duration
+	l                 *domain.Logger
 }
 
 func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
 	u := &logStreamUseCase{
-		streamsRepo: repo,
-		timeout:     timeout,
-		pool:        NewPool(5, &supscriptions, logger),
-		l:           &logger,
+		streamsRepo:       repo,
+		subscriptionsRepo: supscriptions,
+		timeout:           timeout,
+		pool:              NewPool(5, &supscriptions, logger),
+		l:                 &logger,
+		encoder:           lrp.NewEncoder(),
 	}
 	u.pool.Start()
 	return u
@@ -49,17 +55,43 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (do
 }
 
 func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) error {
-	context, cancel := context.WithTimeout(ctx, u.timeout)
+	_ctx, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()
 
-	err := u.streamsRepo.DeleteStream(context, id)
-	if err != nil {
-		(*u.l).Errorf("error while deleting stream %s: %s", id, err.Error())
-		return err
-	}
-	(*u.l).Infof("deleted stream %s", id)
+	errGroup, context := errgroup.WithContext(_ctx)
+	errGroup.Go(func() error {
+		err := u.streamsRepo.DeleteStream(context, id)
+		if err != nil {
+			(*u.l).Errorf("error while deleting stream %s: %s", id, err.Error())
+			return err
+		}
+		return nil
+	})
 
-	return nil
+	errGroup.Go(func() error {
+		subscribers, err := u.subscriptionsRepo.GetSubscribers(context, id)
+		if err != nil {
+			return err
+		}
+		err = u.subscriptionsRepo.RemoveStream(context, id)
+		if err != nil {
+			return err
+		}
+		for _, client := range subscribers {
+			client := client
+			errGroup.Go(func() error {
+				client.Send <- u.encoder.Encode(lrp.NewMesssage(lrp.OprUnsubscribe, []byte(id)))
+				return nil
+			})
+		}
+		return nil
+	})
+
+	err := errGroup.Wait()
+	if err != nil {
+		(*u.l).Infof("deleted stream %s", id)
+	}
+	return err
 }
 
 func (u *logStreamUseCase) SubscribeToStream(ctx context.Context, id string) (domain.LogsChannel, error) {

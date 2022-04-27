@@ -40,8 +40,7 @@ func (u *logUseCase) SendLog(ctx context.Context, streamId string, log *domain.L
 		return nil
 	})
 
-	err = errGroup.Wait()
-	return err
+	return errGroup.Wait()
 }
 
 func (u *logUseCase) SendLogBatch(ctx context.Context, streamId string, logs *[]domain.Log) error {
@@ -67,6 +66,5 @@ func (u *logUseCase) SendLogBatch(ctx context.Context, streamId string, logs *[]
 		})
 	}
 
-	err = errGroup.Wait()
-	return err
+	return errGroup.Wait()
 }

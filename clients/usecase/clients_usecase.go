@@ -6,6 +6,7 @@ import (
 
 	"github.com/log-rush/simple-server/domain"
 	"github.com/log-rush/simple-server/pkg/lrp"
+	"golang.org/x/sync/errgroup"
 )
 
 type clientsUseCase struct {
@@ -47,13 +48,23 @@ func (u *clientsUseCase) NewClient(ctx context.Context) (domain.Client, error) {
 }
 
 func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
-	err := u.repo.Remove(ctx, id)
-	if err != nil {
-		(*u.l).Errorf("error while deleting %s client: %s", id, err.Error())
-		return err
-	}
-	(*u.l).Infof("delted client %s", id)
-	return nil
+	errGroup, context := errgroup.WithContext(ctx)
+
+	errGroup.Go(func() error {
+		err := u.repo.Remove(context, id)
+		if err != nil {
+			(*u.l).Errorf("error while deleting %s client: %s", id, err.Error())
+			return err
+		}
+		(*u.l).Infof("delted client %s", id)
+		return nil
+	})
+
+	errGroup.Go(func() error {
+		return u.subscriptions.RemoveClient(context, id)
+	})
+
+	return errGroup.Wait()
 }
 
 func (u *clientsUseCase) handleError(err error, from *domain.Client) bool {
