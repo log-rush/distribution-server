@@ -10,10 +10,15 @@ import (
 type subscriptionsRepository struct {
 	subscribers   map[string]*[]domain.Client
 	isSubscribing map[string]*[]string
+	streamsRepo   domain.LogStreamRepository
 }
 
-func NewSubscriptionsRepository() domain.SubscriptionsRepository {
-	return &subscriptionsRepository{}
+func NewSubscriptionsRepository(streamsRepo domain.LogStreamRepository) domain.SubscriptionsRepository {
+	return &subscriptionsRepository{
+		streamsRepo:   streamsRepo,
+		subscribers:   map[string]*[]domain.Client{},
+		isSubscribing: map[string]*[]string{},
+	}
 }
 
 func (repo *subscriptionsRepository) GetSubscribers(ctx context.Context, streamId string) ([]domain.Client, error) {
@@ -27,9 +32,16 @@ func (repo *subscriptionsRepository) GetSubscribers(ctx context.Context, streamI
 
 func (repo *subscriptionsRepository) AddSubscription(ctx context.Context, streamId string, client domain.Client) error {
 	subscribers, ok1 := repo.subscribers[streamId]
-	subscriptions, ok2 := repo.isSubscribing[streamId]
-	if !ok1 || !ok2 {
-		return domain.ErrStreamNotFound
+	subscriptions, ok2 := repo.isSubscribing[client.ID]
+	if !ok1 {
+		_, err := repo.streamsRepo.GetStream(ctx, streamId)
+		if err != nil {
+			return err
+		}
+		subscribers = &[]domain.Client{}
+	}
+	if !ok2 {
+		subscriptions = &[]string{}
 	}
 
 	repo.subscribers[streamId] = repository.AppendUniqueToSlice(subscribers, client, repo.clientComperator(client.ID))

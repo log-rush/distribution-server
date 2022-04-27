@@ -70,8 +70,7 @@ func main() {
 	fiberLogger := mainLogger.Named("[server]")
 
 	app.Use(func(c *fiber.Ctx) error {
-		c.Next()
-		fiberLogger.Infof("[%s] [%s] (%d) - %s", c.IP(), c.Method(), c.Response().StatusCode(), c.Path())
+		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
 		return nil
 	})
 	app.Use(cors.New())
@@ -82,7 +81,7 @@ func main() {
 	logRepo := _lRepo.NewLogRepository(100)
 	logStreamRepo := _lsRepo.NewLogStreamRepository()
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
-	subscriptionsRepo := _sRepo.NewSubscriptionsRepository()
+	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)
 
 	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, time.Second*3, mainLogger.Named("[logstream]"))
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
