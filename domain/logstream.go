@@ -8,7 +8,7 @@ type LogStream struct {
 	Stream LogsChannel `json:"-"`
 }
 
-type LogsChannel chan Log
+type LogsChannel chan []Log
 
 type LogStreamUseCase interface {
 	RegisterStream(ctx context.Context, alias string) (LogStream, error)

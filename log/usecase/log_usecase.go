@@ -36,7 +36,7 @@ func (u *logUseCase) SendLog(ctx context.Context, streamId string, log *domain.L
 	})
 
 	errGroup.Go(func() error {
-		stream.Stream <- *log
+		stream.Stream <- []domain.Log{*log}
 		return nil
 	})
 
@@ -58,13 +58,10 @@ func (u *logUseCase) SendLogBatch(ctx context.Context, streamId string, logs *[]
 		return nil
 	})
 
-	for _, log := range *logs {
-		log := log
-		errGroup.Go(func() error {
-			stream.Stream <- log
-			return nil
-		})
-	}
+	errGroup.Go(func() error {
+		stream.Stream <- *logs
+		return nil
+	})
 
 	return errGroup.Wait()
 }

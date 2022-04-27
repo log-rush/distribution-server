@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strconv"
 	"sync"
 
 	"github.com/log-rush/simple-server/domain"
@@ -9,7 +10,7 @@ import (
 )
 
 type logJob struct {
-	log    domain.Log
+	logs   []domain.Log
 	stream string
 }
 
@@ -64,9 +65,9 @@ func (p logDistributionWorkerPool) Start() {
 	}
 }
 
-func (p logDistributionWorkerPool) PostJob(log domain.Log, stream string) {
+func (p logDistributionWorkerPool) PostJob(logs []domain.Log, stream string) {
 	p.jobs <- logJob{
-		log:    log,
+		logs:   logs,
 		stream: stream,
 	}
 }
@@ -103,7 +104,9 @@ func (w *logDistributionWorker) work() {
 			for _, client := range subscribers {
 				wg.Add(1)
 				go func(client domain.Client) {
-					client.Send <- encoder.Encode(lrp.NewMesssage(lrp.OprLog, []byte(job.log.Message)))
+					for _, log := range job.logs {
+						client.Send <- encoder.Encode(lrp.NewMesssage(lrp.OprLog, []byte(job.stream+","+strconv.Itoa(log.TimeStamp)+","+log.Message)))
+					}
 					wg.Done()
 				}(client)
 			}

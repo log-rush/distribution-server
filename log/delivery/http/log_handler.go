@@ -102,12 +102,12 @@ func (h *LogHttpHandler) LogBatch(c *fiber.Ctx) error {
 
 	//TODO: validate
 	logs := make([]domain.Log, len(payload.Logs))
-	for _, log := range payload.Logs {
-		logs = append(logs, domain.Log{
+	for idx, log := range payload.Logs {
+		logs[idx] = domain.Log{
 			Message:   log.Log,
 			Stream:    payload.Stream,
 			TimeStamp: log.Timestamp,
-		})
+		}
 	}
 
 	err := h.useCase.SendLogBatch(ctx, payload.Stream, &logs)

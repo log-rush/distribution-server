@@ -44,9 +44,9 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (do
 
 	go func() {
 		(*u.l).Debugf("[%s] starting log listener", stream.ID)
-		for log := range stream.Stream {
-			(*u.l).Debugf("[%s] received log %s ", stream.ID, log.Message)
-			u.pool.PostJob(log, stream.ID)
+		for logs := range stream.Stream {
+			(*u.l).Debugf("[%s] received logs (%d) ", stream.ID, len(logs))
+			u.pool.PostJob(logs, stream.ID)
 		}
 		(*u.l).Debugf("[%s] stopped log listener", stream.ID)
 	}()
@@ -71,10 +71,13 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) erro
 	errGroup.Go(func() error {
 		subscribers, err := u.subscriptionsRepo.GetSubscribers(context, id)
 		if err != nil {
-			return err
+			(*u.l).Warnf("error gettings stream subscribers %s: %s", id, err.Error())
+			// discard error since the stream might not had any subscribers
+			return nil
 		}
 		err = u.subscriptionsRepo.RemoveStream(context, id)
 		if err != nil {
+			(*u.l).Errorf("error while delteting stream subscriptions %s: %s", id, err.Error())
 			return err
 		}
 		for _, client := range subscribers {

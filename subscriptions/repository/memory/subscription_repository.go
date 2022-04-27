@@ -71,7 +71,7 @@ func (repo *subscriptionsRepository) RemoveStream(ctx context.Context, streamId 
 	for _, subscriber := range *subscribers {
 		client, ok := repo.isSubscribing[subscriber.ID]
 		if !ok {
-			return domain.ErrClientNotFound
+			continue
 		}
 		repo.isSubscribing[subscriber.ID] = repository.RemoveFromSlice(client, repo.stringComperator(streamId))
 	}
