@@ -15,10 +15,11 @@ type logUseCase struct {
 	l           *domain.Logger
 }
 
-func NewLogUseCase(logsRepo domain.LogRepository, streamsRepo domain.LogStreamRepository, timeout time.Duration) domain.LogUseCase {
+func NewLogUseCase(logsRepo domain.LogRepository, streamsRepo domain.LogStreamRepository, timeout time.Duration, logger domain.Logger) domain.LogUseCase {
 	return &logUseCase{
 		logsRepo:    logsRepo,
 		streamsRepo: streamsRepo,
+		l:           &logger,
 	}
 }
 

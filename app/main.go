@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"runtime"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +12,7 @@ import (
 	_cRepo "github.com/log-rush/simple-server/clients/repository/memory"
 	_cUseCase "github.com/log-rush/simple-server/clients/usecase"
 	_ "github.com/log-rush/simple-server/docs"
+	"github.com/log-rush/simple-server/domain"
 	_lHttpHandler "github.com/log-rush/simple-server/log/delivery/http"
 	_lRepo "github.com/log-rush/simple-server/log/repository/memory"
 	_lUseCase "github.com/log-rush/simple-server/log/usecase"
@@ -39,6 +41,49 @@ import (
 func main() {
 	app := fiber.New()
 
+	mainLogger := CreateLogger()
+	fiberLogger := mainLogger.Named("[server]")
+	config := domain.Config{
+		Timeout:    time.Millisecond * 500,
+		LogWorkers: runtime.NumCPU() * 4,
+	}
+
+	app.Use(func(c *fiber.Ctx) error {
+		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
+		err := c.Next()
+		if err != nil {
+			fiberLogger.Errorf("[%s] failed executing request: %s", c.IP(), c.Method(), err.Error())
+		} else if c.Response().StatusCode() >= 400 {
+			fiberLogger.Warnf("[%s] [%s] sending error response %d", c.IP(), c.Method(), c.Response().StatusCode())
+		}
+		return err
+	})
+	app.Use(cors.New())
+	app.Use(recover.New())
+
+	app.Get("/swagger/*", swagger.HandlerDefault) // default
+
+	logRepo := _lRepo.NewLogRepository(100)
+	logStreamRepo := _lsRepo.NewLogStreamRepository()
+	clientsRepo := _cRepo.NewClientsMemoryrepository()
+	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)
+
+	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, config.LogWorkers, config.Timeout, mainLogger.Named("[logstream]"))
+	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, config.Timeout, mainLogger.Named("[logs]"))
+	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, mainLogger.Named("[clients]"))
+
+	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
+	_lHttpHandler.NewLogHandler(app, logUseCase)
+	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase, mainLogger.Named("[websockets]"))
+
+	app.Get("/ping", func(c *fiber.Ctx) error {
+		return c.Send([]byte("pong"))
+	})
+
+	log.Fatal(app.Listen("127.0.0.1:7000"))
+}
+
+func CreateLogger() zap.SugaredLogger {
 	config := zap.Config{
 		Level:         zap.NewAtomicLevelAt(zap.DebugLevel),
 		Development:   false,
@@ -65,35 +110,5 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	mainLogger := l.Sugar()
-
-	fiberLogger := mainLogger.Named("[server]")
-
-	app.Use(func(c *fiber.Ctx) error {
-		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
-		return c.Next()
-	})
-	app.Use(cors.New())
-	app.Use(recover.New())
-
-	app.Get("/swagger/*", swagger.HandlerDefault) // default
-
-	logRepo := _lRepo.NewLogRepository(100)
-	logStreamRepo := _lsRepo.NewLogStreamRepository()
-	clientsRepo := _cRepo.NewClientsMemoryrepository()
-	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)
-
-	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, time.Second*3, mainLogger.Named("[logstream]"))
-	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
-	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, mainLogger.Named("[clients]"))
-
-	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
-	_lHttpHandler.NewLogHandler(app, logUseCase)
-	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase, mainLogger.Named("[websockets]"))
-
-	app.Get("/ping", func(c *fiber.Ctx) error {
-		return c.Send([]byte("pong"))
-	})
-
-	log.Fatal(app.Listen("127.0.0.1:7000"))
+	return *l.Sugar()
 }

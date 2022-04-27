@@ -14,6 +14,7 @@ type clientsUseCase struct {
 	subscriptions domain.SubscriptionsRepository
 	decoder       lrp.LRPDecoder
 	encoder       lrp.LRPEncoder
+	timeout       time.Duration
 	l             *domain.Logger
 }
 
@@ -28,7 +29,10 @@ func NewClientsUseCase(clientsRepo domain.ClientsRepository, subscriptions domai
 }
 
 func (u *clientsUseCase) NewClient(ctx context.Context) (domain.Client, error) {
-	client, err := u.repo.Create(ctx)
+	context, cancel := context.WithTimeout(ctx, u.timeout)
+	defer cancel()
+
+	client, err := u.repo.Create(context)
 	if err != nil {
 		(*u.l).Errorf("error while creating client: %s", err.Error())
 		return domain.Client{}, err
@@ -48,7 +52,9 @@ func (u *clientsUseCase) NewClient(ctx context.Context) (domain.Client, error) {
 }
 
 func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
-	errGroup, context := errgroup.WithContext(ctx)
+	_ctx, cancel := context.WithTimeout(ctx, u.timeout)
+	defer cancel()
+	errGroup, context := errgroup.WithContext(_ctx)
 
 	errGroup.Go(func() error {
 		err := u.repo.Remove(context, id)
@@ -81,7 +87,7 @@ func (u *clientsUseCase) handleMessage(msg []byte, from *domain.Client) {
 	if u.handleError(err, from) {
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), u.timeout)
 	defer cancel()
 
 	if message.OPCode == lrp.OprSubscribe {
