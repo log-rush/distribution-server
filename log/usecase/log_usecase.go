@@ -9,17 +9,17 @@ import (
 )
 
 type logUseCase struct {
-	logsRepo    domain.LogRepository
-	streamsRepo domain.LogStreamRepository
-	timeout     time.Duration
-	l           *domain.Logger
+	lRepo   domain.LogRepository
+	lsRepo  domain.LogStreamRepository
+	timeout time.Duration
+	l       *domain.Logger
 }
 
 func NewLogUseCase(logsRepo domain.LogRepository, streamsRepo domain.LogStreamRepository, timeout time.Duration, logger domain.Logger) domain.LogUseCase {
 	return &logUseCase{
-		logsRepo:    logsRepo,
-		streamsRepo: streamsRepo,
-		l:           &logger,
+		lRepo:  logsRepo,
+		lsRepo: streamsRepo,
+		l:      &logger,
 	}
 }
 
@@ -28,14 +28,14 @@ func (u *logUseCase) SendLog(ctx context.Context, streamId string, log *domain.L
 	defer cancel()
 	errGroup, context := errgroup.WithContext(_ctx)
 
-	stream, err := u.streamsRepo.GetStream(context, streamId)
+	stream, err := u.lsRepo.GetStream(context, streamId)
 	if err != nil {
 		(*u.l).Errorf("error while addding log: %s", err.Error())
 		return err
 	}
 
 	errGroup.Go(func() error {
-		return u.logsRepo.AddLogs(context, streamId, &[]domain.Log{*log})
+		return u.lRepo.AddLogs(context, streamId, &[]domain.Log{*log})
 	})
 
 	errGroup.Go(func() error {
@@ -51,14 +51,14 @@ func (u *logUseCase) SendLogBatch(ctx context.Context, streamId string, logs *[]
 	defer cancel()
 	errGroup, context := errgroup.WithContext(_ctx)
 
-	stream, err := u.streamsRepo.GetStream(context, streamId)
+	stream, err := u.lsRepo.GetStream(context, streamId)
 	if err != nil {
 		(*u.l).Errorf("error while batching logs: %s", err.Error())
 		return err
 	}
 
 	errGroup.Go(func() error {
-		return u.logsRepo.AddLogs(context, streamId, logs)
+		return u.lRepo.AddLogs(context, streamId, logs)
 	})
 
 	errGroup.Go(func() error {

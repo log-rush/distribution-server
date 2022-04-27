@@ -7,16 +7,16 @@ import (
 )
 
 type logStreamWsHandler struct {
-	conns         map[string]*websocket.Conn
-	clientManager domain.ClientsUseCase
-	l             *domain.Logger
+	conns map[string]*websocket.Conn
+	cu    domain.ClientsUseCase
+	l     *domain.Logger
 }
 
 func NewLogStreamWsHandler(app *fiber.App, clientManager domain.ClientsUseCase, logger domain.Logger) {
 	handler := &logStreamWsHandler{
-		conns:         map[string]*websocket.Conn{},
-		clientManager: clientManager,
-		l:             &logger,
+		conns: map[string]*websocket.Conn{},
+		cu:    clientManager,
+		l:     &logger,
 	}
 
 	app.Use("/subscribe", handler.AllowWebsocketUpgrades)
@@ -43,7 +43,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn, ctx *fiber.Ctx) {
 		err error
 	)
 
-	client, err := h.clientManager.NewClient(ctx.Context())
+	client, err := h.cu.NewClient(ctx.Context())
 	if err != nil {
 		conn.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
 		conn.Close()
@@ -56,7 +56,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn, ctx *fiber.Ctx) {
 		close(closed)
 		conn.WriteMessage(websocket.CloseMessage, []byte{})
 		conn.Close()
-		h.clientManager.DestroyClient(ctx.Context(), client.ID)
+		h.cu.DestroyClient(ctx.Context(), client.ID)
 		(*h.l).Debugf("closed connection %s", client.ID)
 	}()
 

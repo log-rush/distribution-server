@@ -8,7 +8,7 @@ import (
 )
 
 type LogHttpHandler struct {
-	useCase domain.LogUseCase
+	lu domain.LogUseCase
 }
 
 type ErrorResponse struct {
@@ -35,7 +35,7 @@ type LogBatchRequest struct {
 
 func NewLogHandler(app *fiber.App, us domain.LogUseCase) {
 	handler := &LogHttpHandler{
-		useCase: us,
+		lu: us,
 	}
 
 	app.Post("/log", handler.Log)
@@ -65,7 +65,7 @@ func (h *LogHttpHandler) Log(c *fiber.Ctx) error {
 
 	//TODO: validate
 
-	err := h.useCase.SendLog(ctx, payload.Stream, &domain.Log{
+	err := h.lu.SendLog(ctx, payload.Stream, &domain.Log{
 		Message:   payload.Log,
 		Stream:    payload.Stream,
 		TimeStamp: payload.Timestamp,
@@ -110,7 +110,7 @@ func (h *LogHttpHandler) LogBatch(c *fiber.Ctx) error {
 		}
 	}
 
-	err := h.useCase.SendLogBatch(ctx, payload.Stream, &logs)
+	err := h.lu.SendLogBatch(ctx, payload.Stream, &logs)
 	if err != nil {
 		c.JSON(ErrorResponse{err.Error()})
 		return c.SendStatus(getStatusCode(err))

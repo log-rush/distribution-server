@@ -10,22 +10,22 @@ import (
 )
 
 type logStreamUseCase struct {
-	streamsRepo       domain.LogStreamRepository
-	subscriptionsRepo domain.SubscriptionsRepository
-	pool              logDistributionWorkerPool
-	encoder           lrp.LRPEncoder
-	timeout           time.Duration
-	l                 *domain.Logger
+	lsRepo  domain.LogStreamRepository
+	sRepo   domain.SubscriptionsRepository
+	pool    logDistributionWorkerPool
+	encoder lrp.LRPEncoder
+	timeout time.Duration
+	l       *domain.Logger
 }
 
 func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, maxAmountOfWorkers int, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
 	u := &logStreamUseCase{
-		streamsRepo:       repo,
-		subscriptionsRepo: supscriptions,
-		timeout:           timeout,
-		pool:              NewPool(maxAmountOfWorkers, &supscriptions, logger),
-		l:                 &logger,
-		encoder:           lrp.NewEncoder(),
+		lsRepo:  repo,
+		sRepo:   supscriptions,
+		timeout: timeout,
+		pool:    NewPool(maxAmountOfWorkers, &supscriptions, logger),
+		l:       &logger,
+		encoder: lrp.NewEncoder(),
 	}
 	u.pool.Start()
 	return u
@@ -35,7 +35,7 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (do
 	context, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()
 
-	stream, err := u.streamsRepo.CreateStream(context, alias)
+	stream, err := u.lsRepo.CreateStream(context, alias)
 	if err != nil {
 		(*u.l).Errorf("error while creating stream: %s", err.Error())
 		return domain.LogStream{}, err
@@ -60,7 +60,7 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) erro
 
 	errGroup, context := errgroup.WithContext(_ctx)
 	errGroup.Go(func() error {
-		err := u.streamsRepo.DeleteStream(context, id)
+		err := u.lsRepo.DeleteStream(context, id)
 		if err != nil {
 			(*u.l).Errorf("error while deleting stream %s: %s", id, err.Error())
 			return err
@@ -69,13 +69,13 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) erro
 	})
 
 	errGroup.Go(func() error {
-		subscribers, err := u.subscriptionsRepo.GetSubscribers(context, id)
+		subscribers, err := u.sRepo.GetSubscribers(context, id)
 		if err != nil {
 			(*u.l).Warnf("error gettings stream subscribers %s: %s", id, err.Error())
 			// discard error since the stream might not had any subscribers
 			return nil
 		}
-		err = u.subscriptionsRepo.RemoveStream(context, id)
+		err = u.sRepo.RemoveStream(context, id)
 		if err != nil {
 			(*u.l).Errorf("error while delteting stream subscriptions %s: %s", id, err.Error())
 			return err
@@ -101,7 +101,7 @@ func (u *logStreamUseCase) GetAvailableStreams(ctx context.Context) ([]domain.Lo
 	context, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()
 
-	streams, err := u.streamsRepo.ListStreams(context)
+	streams, err := u.lsRepo.ListStreams(context)
 	if err != nil {
 		(*u.l).Errorf("error while listing streams: %s", err.Error())
 		return nil, err

@@ -8,7 +8,7 @@ import (
 )
 
 type LogStreamHttpHandler struct {
-	useCase domain.LogStreamUseCase
+	lsu domain.LogStreamUseCase
 }
 
 type RegisterRequest struct {
@@ -33,7 +33,7 @@ type LogStreamsResponse struct {
 
 func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 	handler := &LogStreamHttpHandler{
-		useCase: us,
+		lsu: us,
 	}
 
 	app.Get("/streams", handler.ListStreams)
@@ -66,7 +66,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 
 	//TODO: validate
 
-	stream, err := h.useCase.RegisterStream(ctx, payload.Alias)
+	stream, err := h.lsu.RegisterStream(ctx, payload.Alias)
 	if err != nil {
 		c.JSON(ErrorResponse{err.Error()})
 		return c.SendStatus(getStatusCode(err))
@@ -99,7 +99,7 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 
 	//TODO: validate
 
-	err := h.useCase.UnregisterStream(ctx, payload.ID)
+	err := h.lsu.UnregisterStream(ctx, payload.ID)
 	if err != nil {
 		c.JSON(ErrorResponse{err.Error()})
 		return c.SendStatus(getStatusCode(err))
@@ -121,7 +121,7 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 func (h *LogStreamHttpHandler) ListStreams(c *fiber.Ctx) error {
 	ctx := c.Context()
 
-	streams, err := h.useCase.GetAvailableStreams(ctx)
+	streams, err := h.lsu.GetAvailableStreams(ctx)
 	if err != nil {
 		c.JSON(ErrorResponse{err.Error()})
 		return c.SendStatus(getStatusCode(err))

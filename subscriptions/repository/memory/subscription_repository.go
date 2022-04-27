@@ -10,12 +10,12 @@ import (
 type subscriptionsRepository struct {
 	subscribers   map[string]*[]domain.Client
 	isSubscribing map[string]*[]string
-	streamsRepo   domain.LogStreamRepository
+	lsRepo        domain.LogStreamRepository
 }
 
 func NewSubscriptionsRepository(streamsRepo domain.LogStreamRepository) domain.SubscriptionsRepository {
 	return &subscriptionsRepository{
-		streamsRepo:   streamsRepo,
+		lsRepo:        streamsRepo,
 		subscribers:   map[string]*[]domain.Client{},
 		isSubscribing: map[string]*[]string{},
 	}
@@ -34,7 +34,7 @@ func (repo *subscriptionsRepository) AddSubscription(ctx context.Context, stream
 	subscribers, ok1 := repo.subscribers[streamId]
 	subscriptions, ok2 := repo.isSubscribing[client.ID]
 	if !ok1 {
-		_, err := repo.streamsRepo.GetStream(ctx, streamId)
+		_, err := repo.lsRepo.GetStream(ctx, streamId)
 		if err != nil {
 			return err
 		}

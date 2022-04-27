@@ -44,8 +44,9 @@ func main() {
 	mainLogger := CreateLogger()
 	fiberLogger := mainLogger.Named("[server]")
 	config := domain.Config{
-		Timeout:    time.Millisecond * 500,
-		LogWorkers: runtime.NumCPU() * 4,
+		Timeout:               time.Millisecond * 500,
+		LogWorkers:            runtime.NumCPU() * 4,
+		MaxAmountOfStoredLogs: 5,
 	}
 
 	app.Use(func(c *fiber.Ctx) error {
@@ -63,7 +64,7 @@ func main() {
 
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
-	logRepo := _lRepo.NewLogRepository(100)
+	logRepo := _lRepo.NewLogRepository(config.MaxAmountOfStoredLogs)
 	logStreamRepo := _lsRepo.NewLogStreamRepository()
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
 	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)

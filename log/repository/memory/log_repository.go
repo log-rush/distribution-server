@@ -36,7 +36,7 @@ func (repo *logRepository) AddLogs(ctx context.Context, streamId string, logs *[
 func (repo *logRepository) FetchLogs(ctx context.Context, streamId string) ([]domain.Log, error) {
 	logs, ok := repo.logs[streamId]
 	if !ok {
-		return make([]domain.Log, 0), domain.ErrStreamNotFound
+		return []domain.Log{}, domain.ErrStreamNotFound
 	}
 
 	return (*logs).GetAll(), nil

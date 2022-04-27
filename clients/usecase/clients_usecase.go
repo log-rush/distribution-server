@@ -10,21 +10,21 @@ import (
 )
 
 type clientsUseCase struct {
-	repo          domain.ClientsRepository
-	subscriptions domain.SubscriptionsRepository
-	decoder       lrp.LRPDecoder
-	encoder       lrp.LRPEncoder
-	timeout       time.Duration
-	l             *domain.Logger
+	cRepo   domain.ClientsRepository
+	sRepo   domain.SubscriptionsRepository
+	decoder lrp.LRPDecoder
+	encoder lrp.LRPEncoder
+	timeout time.Duration
+	l       *domain.Logger
 }
 
 func NewClientsUseCase(clientsRepo domain.ClientsRepository, subscriptions domain.SubscriptionsRepository, logger domain.Logger) domain.ClientsUseCase {
 	return &clientsUseCase{
-		repo:          clientsRepo,
-		subscriptions: subscriptions,
-		decoder:       lrp.NewDecoder(),
-		encoder:       lrp.NewEncoder(),
-		l:             &logger,
+		cRepo:   clientsRepo,
+		sRepo:   subscriptions,
+		decoder: lrp.NewDecoder(),
+		encoder: lrp.NewEncoder(),
+		l:       &logger,
 	}
 }
 
@@ -32,7 +32,7 @@ func (u *clientsUseCase) NewClient(ctx context.Context) (domain.Client, error) {
 	context, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()
 
-	client, err := u.repo.Create(context)
+	client, err := u.cRepo.Create(context)
 	if err != nil {
 		(*u.l).Errorf("error while creating client: %s", err.Error())
 		return domain.Client{}, err
@@ -57,7 +57,7 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 	errGroup, context := errgroup.WithContext(_ctx)
 
 	errGroup.Go(func() error {
-		err := u.repo.Remove(context, id)
+		err := u.cRepo.Remove(context, id)
 		if err != nil {
 			(*u.l).Errorf("error while deleting %s client: %s", id, err.Error())
 			return err
@@ -67,7 +67,7 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 	})
 
 	errGroup.Go(func() error {
-		return u.subscriptions.RemoveClient(context, id)
+		return u.sRepo.RemoveClient(context, id)
 	})
 
 	return errGroup.Wait()
@@ -91,12 +91,12 @@ func (u *clientsUseCase) handleMessage(msg []byte, from *domain.Client) {
 	defer cancel()
 
 	if message.OPCode == lrp.OprSubscribe {
-		err := u.subscriptions.AddSubscription(ctx, string(message.Payload), *from)
+		err := u.sRepo.AddSubscription(ctx, string(message.Payload), *from)
 		u.handleError(err, from)
 		(*u.l).Infof("[%s] subscribed %s", from.ID, string(message.Payload))
 
 	} else if message.OPCode == lrp.OprUnsubscribe {
-		err := u.subscriptions.RemoveSubscription(ctx, string(message.Payload), from.ID)
+		err := u.sRepo.RemoveSubscription(ctx, string(message.Payload), from.ID)
 		u.handleError(err, from)
 		(*u.l).Infof("[%s] unsubscribed %s", from.ID, string(message.Payload))
 	}
