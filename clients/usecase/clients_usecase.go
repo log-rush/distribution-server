@@ -2,23 +2,27 @@ package usecase
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/log-rush/simple-server/domain"
 	"github.com/log-rush/simple-server/pkg/lrp"
 )
 
 type clientsUseCase struct {
-	repo    domain.ClientsRepository
-	decoder lrp.LRPDecoder
-	l       *domain.Logger
+	repo          domain.ClientsRepository
+	subscriptions domain.SubscriptionsRepository
+	decoder       lrp.LRPDecoder
+	encoder       lrp.LRPEncoder
+	l             *domain.Logger
 }
 
-func NewClientsUseCase(clientsRepo domain.ClientsRepository, logger domain.Logger) domain.ClientsUseCase {
+func NewClientsUseCase(clientsRepo domain.ClientsRepository, subscriptions domain.SubscriptionsRepository, logger domain.Logger) domain.ClientsUseCase {
 	return &clientsUseCase{
-		repo:    clientsRepo,
-		decoder: lrp.NewDecoder(),
-		l:       &logger,
+		repo:          clientsRepo,
+		subscriptions: subscriptions,
+		decoder:       lrp.NewDecoder(),
+		encoder:       lrp.NewEncoder(),
+		l:             &logger,
 	}
 }
 
@@ -34,7 +38,7 @@ func (u *clientsUseCase) NewClient(ctx context.Context) (domain.Client, error) {
 		(*u.l).Debugf("[%s] started request listener", client.ID)
 		for msg := range client.Receive {
 			(*u.l).Debugf("[%s] received %s ", client.ID, msg)
-			u.handleMessage(msg)
+			u.handleMessage(msg, &client)
 		}
 		(*u.l).Debugf("[%s] stopped request listener", client.ID)
 	}()
@@ -52,11 +56,31 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 	return nil
 }
 
-func (u *clientsUseCase) handleMessage(msg []byte) {
-	message, err := u.decoder.Decode(msg)
+func (u *clientsUseCase) handleError(err error, from *domain.Client) bool {
 	if err != nil {
-		// do something
+		(*u.l).Warnf("[%s] received errornous message (error: %s)", from.ID, err.Error())
+		from.Send <- u.encoder.Encode(lrp.LRPMessage{OPCode: lrp.OprErr, Payload: []byte(err.Error())})
+		return true
+	}
+	return false
+}
+
+func (u *clientsUseCase) handleMessage(msg []byte, from *domain.Client) {
+	message, err := u.decoder.Decode(msg)
+	if u.handleError(err, from) {
 		return
 	}
-	fmt.Printf("received: %b, %s\n", message.OPCode, message.Payload)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	if message.OPCode == lrp.OprSubscribe {
+		err := u.subscriptions.AddSubscription(ctx, string(message.Payload), *from)
+		u.handleError(err, from)
+		(*u.l).Infof("[%s] subscribed %s", from.ID, string(message.Payload))
+
+	} else if message.OPCode == lrp.OprUnsubscribe {
+		err := u.subscriptions.RemoveSubscription(ctx, string(message.Payload), from.ID)
+		u.handleError(err, from)
+		(*u.l).Infof("[%s] unsubscribed %s", from.ID, string(message.Payload))
+	}
 }

@@ -84,9 +84,9 @@ func main() {
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
 	subscriptionsRepo := _sRepo.NewSubscriptionsRepository()
 
-	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3, mainLogger.Named("[logstream]"), subscriptionsRepo)
+	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, time.Second*3, mainLogger.Named("[logstream]"))
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
-	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, mainLogger.Named("[clients]"))
+	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, mainLogger.Named("[clients]"))
 
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)

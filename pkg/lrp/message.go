@@ -15,6 +15,7 @@ const (
 	OprAlive       LRPOpcode = 67 // 0b001010 // 10
 	OprStillAlive  LRPOpcode = 68 // 0b001100 // 12
 	OprLog         LRPOpcode = 69 // 0b001100 // 12
+	OprErr         LRPOpcode = 70 // 0b001100 // 12
 )
 
 var (

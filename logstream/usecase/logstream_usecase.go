@@ -14,7 +14,7 @@ type logStreamUseCase struct {
 	l           *domain.Logger
 }
 
-func NewLogStreamUseCase(repo domain.LogStreamRepository, timeout time.Duration, logger domain.Logger, supscriptions domain.SubscriptionsRepository) domain.LogStreamUseCase {
+func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
 	u := &logStreamUseCase{
 		streamsRepo: repo,
 		timeout:     timeout,
