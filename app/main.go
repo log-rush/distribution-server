@@ -18,6 +18,7 @@ import (
 	_lsWsHandler "github.com/log-rush/simple-server/logstream/delivery/ws"
 	_lsRepo "github.com/log-rush/simple-server/logstream/repository/memory"
 	_lsUseCase "github.com/log-rush/simple-server/logstream/usecase"
+	_sRepo "github.com/log-rush/simple-server/subscriptions/repository/memory"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -81,8 +82,9 @@ func main() {
 	logRepo := _lRepo.NewLogRepository(100)
 	logStreamRepo := _lsRepo.NewLogStreamRepository()
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
+	subscriptionsRepo := _sRepo.NewSubscriptionsRepository()
 
-	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3, mainLogger.Named("[logstream]"))
+	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, time.Second*3, mainLogger.Named("[logstream]"), subscriptionsRepo)
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, time.Second*3)
 	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, mainLogger.Named("[clients]"))
 

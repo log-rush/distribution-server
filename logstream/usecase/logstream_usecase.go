@@ -14,11 +14,11 @@ type logStreamUseCase struct {
 	l           *domain.Logger
 }
 
-func NewLogStreamUseCase(repo domain.LogStreamRepository, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
+func NewLogStreamUseCase(repo domain.LogStreamRepository, timeout time.Duration, logger domain.Logger, supscriptions domain.SubscriptionsRepository) domain.LogStreamUseCase {
 	u := &logStreamUseCase{
 		streamsRepo: repo,
 		timeout:     timeout,
-		pool:        logDistributionWorkerPool{},
+		pool:        NewPool(5, &supscriptions, logger),
 		l:           &logger,
 	}
 	u.pool.Start()
