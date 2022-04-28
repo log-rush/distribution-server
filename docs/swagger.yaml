@@ -27,6 +27,13 @@ definitions:
       success:
         type: boolean
     type: object
+  http.InfoResponse:
+    properties:
+      name:
+        type: string
+      version:
+        type: string
+    type: object
   http.LogStreamsResponse:
     properties:
       streams:
@@ -74,6 +81,20 @@ paths:
       summary: push multiple logs at once
       tags:
       - log
+  /info:
+    get:
+      description: get all server information
+      operationId: info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.InfoResponse'
+      summary: get the server info
+      tags:
+      - system
   /log:
     post:
       consumes:

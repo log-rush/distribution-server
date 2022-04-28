@@ -65,6 +65,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/info": {
+            "get": {
+                "description": "get all server information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "get the server info",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.InfoResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/log": {
             "post": {
                 "description": "add a new log on a logstream",
@@ -260,6 +281,17 @@ const docTemplate = `{
             "properties": {
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "http.InfoResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },

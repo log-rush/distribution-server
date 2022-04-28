@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/swagger"
 	_cRepo "github.com/log-rush/simple-server/clients/repository/memory"
 	_cUseCase "github.com/log-rush/simple-server/clients/usecase"
+	_cfHttpHandler "github.com/log-rush/simple-server/config/delivery/http"
 	_ "github.com/log-rush/simple-server/docs"
 	"github.com/log-rush/simple-server/domain"
 	_lHttpHandler "github.com/log-rush/simple-server/log/delivery/http"
@@ -44,6 +45,8 @@ func main() {
 	mainLogger := CreateLogger()
 	fiberLogger := mainLogger.Named("[server]")
 	config := domain.Config{
+		Name:                     "Simple log-rush distribution server",
+		Version:                  "0.0.0",
 		Timeout:                  time.Millisecond * 500,
 		LogWorkers:               runtime.NumCPU() * 4,
 		MaxAmountOfStoredLogs:    5,
@@ -55,7 +58,7 @@ func main() {
 		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
 		err := c.Next()
 		if err != nil {
-			fiberLogger.Errorf("[%s] failed executing request: %s", c.IP(), c.Method(), err.Error())
+			fiberLogger.Errorf("[%s] [%s] failed executing request: %s", c.IP(), c.Method(), err.Error())
 		} else if c.Response().StatusCode() >= 400 {
 			fiberLogger.Warnf("[%s] [%s] sending error response %d", c.IP(), c.Method(), c.Response().StatusCode())
 		}
@@ -78,6 +81,7 @@ func main() {
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)
 	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase, mainLogger.Named("[websockets]"))
+	_cfHttpHandler.NewConfigHttpHandler(app, config.Version, config.Name)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))
