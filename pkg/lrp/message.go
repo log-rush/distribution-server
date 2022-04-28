@@ -10,12 +10,12 @@ type LRPMessage struct {
 type LRPOpcode = int8
 
 const (
-	OprSubscribe   LRPOpcode = 65 // 0b010010 // 18
-	OprUnsubscribe LRPOpcode = 66 // 0b010100 // 20
-	OprAlive       LRPOpcode = 67 // 0b001010 // 10
-	OprStillAlive  LRPOpcode = 68 // 0b001100 // 12
-	OprLog         LRPOpcode = 69 // 0b001100 // 12
-	OprErr         LRPOpcode = 70 // 0b001100 // 12
+	OprSubscribe   LRPOpcode = 0b010010 // 18
+	OprUnsubscribe LRPOpcode = 0b010100 // 20
+	OprAlive       LRPOpcode = 0b001010 // 10
+	OprStillAlive  LRPOpcode = 0b100010 // 34
+	OprLog         LRPOpcode = 0b100100 // 36
+	OprErr         LRPOpcode = 0b100110 // 38
 )
 
 var (
