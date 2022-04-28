@@ -41,25 +41,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.SuccessResponse"
+                            "$ref": "#/definitions/http_common.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     }
                 }
@@ -104,25 +104,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.SuccessResponse"
+                            "$ref": "#/definitions/http_common.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     }
                 }
@@ -146,25 +146,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.LogStream"
+                            "$ref": "#/definitions/http.LogStreamResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     }
                 }
@@ -188,25 +188,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.SuccessResponse"
+                            "$ref": "#/definitions/http_common.SuccessResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     }
                 }
@@ -233,7 +233,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse"
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     }
                 }
@@ -241,49 +241,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.LogStream": {
-            "type": "object",
-            "properties": {
-                "alias": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "github.com_log-rush_simple-server_log_delivery_http.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "github.com_log-rush_simple-server_log_delivery_http.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "github.com_log-rush_simple-server_logstream_delivery_http.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
         "http.InfoResponse": {
             "type": "object",
             "properties": {
@@ -295,14 +252,41 @@ const docTemplate = `{
                 }
             }
         },
+        "http.LogStreamResponse": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "http.LogStreamsResponse": {
             "type": "object",
             "properties": {
                 "streams": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.LogStream"
+                        "$ref": "#/definitions/http.LogStreamResponse"
                     }
+                }
+            }
+        },
+        "http_common.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "http_common.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
                 }
             }
         }

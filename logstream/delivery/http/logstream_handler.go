@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	http_common "github.com/log-rush/simple-server/common/delivery/http"
 	"github.com/log-rush/simple-server/domain"
 )
 
@@ -19,16 +20,13 @@ type UnregisterRequest struct {
 	ID string `json:"id"`
 }
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
-
-type SuccessResponse struct {
-	Success bool `json:"success"`
-}
-
 type LogStreamsResponse struct {
-	Streams []domain.LogStream `json:"streams"`
+	Streams []LogStreamResponse `json:"streams"`
+}
+
+type LogStreamResponse struct {
+	ID    string `json:"id"`
+	Alias string `json:"alias"`
 }
 
 func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
@@ -51,16 +49,16 @@ func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 // @Summary register a logstream
 // @Accept json
 // @Produce json
-// @Success 200 {object} domain.LogStream
-// @Failure 409 {object} ErrorResponse
-// @Failure 422 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} LogStreamResponse
+// @Failure 409 {object} http_common.ErrorResponse
+// @Failure 422 {object} http_common.ErrorResponse
+// @Failure 500 {object} http_common.ErrorResponse
 func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 	ctx := c.Context()
 	payload := RegisterRequest{}
 
 	if err := c.BodyParser(&payload); err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
@@ -68,7 +66,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 
 	stream, err := h.lsu.RegisterStream(ctx, payload.Alias)
 	if err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
 	}
 
@@ -84,16 +82,16 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 // @Summary unregister a logstream
 // @Accept json
 // @Produce json
-// @Success 200 {object} SuccessResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 422 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} http_common.SuccessResponse
+// @Failure 404 {object} http_common.ErrorResponse
+// @Failure 422 {object} http_common.ErrorResponse
+// @Failure 500 {object} http_common.ErrorResponse
 func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 	ctx := c.Context()
 	payload := UnregisterRequest{}
 
 	if err := c.BodyParser(&payload); err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
@@ -101,11 +99,11 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 
 	err := h.lsu.UnregisterStream(ctx, payload.ID)
 	if err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
 	}
 
-	c.JSON(SuccessResponse{true})
+	c.JSON(http_common.SuccessResponse{Success: true})
 	return c.SendStatus(http.StatusOK)
 }
 
@@ -117,17 +115,21 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 // @Summary list all streams
 // @Produce json
 // @Success 200 {object} LogStreamsResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 500 {object} http_common.ErrorResponse
 func (h *LogStreamHttpHandler) ListStreams(c *fiber.Ctx) error {
 	ctx := c.Context()
 
 	streams, err := h.lsu.GetAvailableStreams(ctx)
 	if err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
 	}
 
-	c.JSON(LogStreamsResponse{streams})
+	streamsDto := make([]LogStreamResponse, len(streams))
+	for idx, stream := range streams {
+		streamsDto[idx] = LogStreamResponse{stream.ID, stream.Alias}
+	}
+	c.JSON(LogStreamsResponse{streamsDto})
 	return c.SendStatus(http.StatusOK)
 }
 

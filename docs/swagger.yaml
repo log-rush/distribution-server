@@ -1,32 +1,5 @@
 basePath: /
 definitions:
-  domain.LogStream:
-    properties:
-      alias:
-        type: string
-      id:
-        type: string
-    type: object
-  github.com_log-rush_simple-server_log_delivery_http.ErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  github.com_log-rush_simple-server_log_delivery_http.SuccessResponse:
-    properties:
-      success:
-        type: boolean
-    type: object
-  github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  github.com_log-rush_simple-server_logstream_delivery_http.SuccessResponse:
-    properties:
-      success:
-        type: boolean
-    type: object
   http.InfoResponse:
     properties:
       name:
@@ -34,12 +7,29 @@ definitions:
       version:
         type: string
     type: object
+  http.LogStreamResponse:
+    properties:
+      alias:
+        type: string
+      id:
+        type: string
+    type: object
   http.LogStreamsResponse:
     properties:
       streams:
         items:
-          $ref: '#/definitions/domain.LogStream'
+          $ref: '#/definitions/http.LogStreamResponse'
         type: array
+    type: object
+  http_common.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  http_common.SuccessResponse:
+    properties:
+      success:
+        type: boolean
     type: object
 host: localhost:7000
 info:
@@ -65,19 +55,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.SuccessResponse'
+            $ref: '#/definitions/http_common.SuccessResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
       summary: push multiple logs at once
       tags:
       - log
@@ -107,19 +97,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.SuccessResponse'
+            $ref: '#/definitions/http_common.SuccessResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_log_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
       summary: push a log
       tags:
       - log
@@ -136,19 +126,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.LogStream'
+            $ref: '#/definitions/http.LogStreamResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
       summary: register a logstream
       tags:
       - logstream
@@ -164,19 +154,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.SuccessResponse'
+            $ref: '#/definitions/http_common.SuccessResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
       summary: unregister a logstream
       tags:
       - logstream
@@ -194,7 +184,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github.com_log-rush_simple-server_logstream_delivery_http.ErrorResponse'
+            $ref: '#/definitions/http_common.ErrorResponse'
       summary: list all streams
       tags:
       - logstream

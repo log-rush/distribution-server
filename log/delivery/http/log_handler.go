@@ -4,19 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	http_common "github.com/log-rush/simple-server/common/delivery/http"
 	"github.com/log-rush/simple-server/domain"
 )
 
 type LogHttpHandler struct {
 	lu domain.LogUseCase
-}
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
-
-type SuccessResponse struct {
-	Success bool `json:"success"`
 }
 
 type LogRequest struct {
@@ -50,16 +43,16 @@ func NewLogHandler(app *fiber.App, us domain.LogUseCase) {
 // @Summary push a log
 // @Accept json
 // @Produce json
-// @Success 200 {object} SuccessResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 422 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} http_common.SuccessResponse
+// @Failure 404 {object} http_common.ErrorResponse
+// @Failure 422 {object} http_common.ErrorResponse
+// @Failure 500 {object} http_common.ErrorResponse
 func (h *LogHttpHandler) Log(c *fiber.Ctx) error {
 	ctx := c.Context()
 	payload := LogRequest{}
 
 	if err := c.BodyParser(&payload); err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
@@ -71,11 +64,11 @@ func (h *LogHttpHandler) Log(c *fiber.Ctx) error {
 		TimeStamp: payload.Timestamp,
 	})
 	if err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
 	}
 
-	c.JSON(SuccessResponse{true})
+	c.JSON(http_common.SuccessResponse{Success: true})
 	return c.SendStatus(http.StatusOK)
 }
 
@@ -87,16 +80,16 @@ func (h *LogHttpHandler) Log(c *fiber.Ctx) error {
 // @Summary push multiple logs at once
 // @Accept json
 // @Produce json
-// @Success 200 {object} SuccessResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 422 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} http_common.SuccessResponse
+// @Failure 404 {object} http_common.ErrorResponse
+// @Failure 422 {object} http_common.ErrorResponse
+// @Failure 500 {object} http_common.ErrorResponse
 func (h *LogHttpHandler) LogBatch(c *fiber.Ctx) error {
 	ctx := c.Context()
 	payload := LogBatchRequest{}
 
 	if err := c.BodyParser(&payload); err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
@@ -112,11 +105,11 @@ func (h *LogHttpHandler) LogBatch(c *fiber.Ctx) error {
 
 	err := h.lu.SendLogBatch(ctx, payload.Stream, &logs)
 	if err != nil {
-		c.JSON(ErrorResponse{err.Error()})
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
 	}
 
-	c.JSON(SuccessResponse{true})
+	c.JSON(http_common.SuccessResponse{Success: true})
 	return c.SendStatus(http.StatusOK)
 }
 
