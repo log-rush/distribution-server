@@ -6,6 +6,7 @@ type Client struct {
 	ID      string
 	Send    chan []byte
 	Receive chan []byte
+	Close   chan bool
 }
 
 type ClientsUseCase interface {

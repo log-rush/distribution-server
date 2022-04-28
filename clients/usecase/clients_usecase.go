@@ -56,40 +56,7 @@ func (u *clientsUseCase) NewClient(ctx context.Context) (domain.Client, error) {
 	}
 	(*u.l).Infof("created client %s", client.ID)
 
-	eClient := extendedClient{
-		Client:    client,
-		lastCheck: time.Now().UnixMilli(),
-	}
-
-	timer := time.NewTicker(u.clientCheckInterval)
-	go func() {
-		(*u.l).Debugf("[%s] started request listener", client.ID)
-	outer:
-		for {
-			select {
-			case <-timer.C:
-				go func() {
-					client.Send <- u.encoder.Encode(lrp.NewMesssage(lrp.OprStillAlive, []byte{}))
-					eClient.lastCheck = time.Now().UnixMilli()
-					(*u.l).Warnf("[%s] checking if alive", client.ID)
-					<-time.After(u.maxResponseLatency)
-					if eClient.lastCheck > 0 {
-						// client did not respond in time
-						(*u.l).Warnf("[%s] client inactive", client.ID)
-						// TODO: close ws connection
-					}
-				}()
-			case msg := <-client.Receive:
-				if msg != nil {
-					(*u.l).Debugf("[%s] received %s ", client.ID, msg)
-					u.handleMessage(msg, &eClient)
-				} else {
-					break outer
-				}
-			}
-		}
-		(*u.l).Debugf("[%s] stopped request listener", client.ID)
-	}()
+	go u.handleClient(client)
 
 	return client, nil
 }
@@ -105,7 +72,7 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 			(*u.l).Errorf("error while deleting %s client: %s", id, err.Error())
 			return err
 		}
-		(*u.l).Infof("delted client %s", id)
+		(*u.l).Infof("deleted client %s", id)
 		return nil
 	})
 
@@ -123,6 +90,51 @@ func (u *clientsUseCase) handleError(err error, from *extendedClient) bool {
 		return true
 	}
 	return false
+}
+
+func (u *clientsUseCase) handleClient(c domain.Client) {
+	client := extendedClient{
+		Client:    c,
+		lastCheck: time.Now().UnixMilli(),
+	}
+
+	timer := time.NewTicker(u.clientCheckInterval)
+	closed := make(chan bool)
+	go func() {
+		(*u.l).Debugf("[%s] started request listener", client.ID)
+	outer:
+		for {
+			select {
+			case <-closed:
+				break outer
+			case <-timer.C:
+				go u.testIfClientIsAlive(&client, closed)
+			case msg := <-client.Receive:
+				if msg != nil {
+					(*u.l).Debugf("[%s] received %s ", client.ID, msg)
+					u.handleMessage(msg, &client)
+				} else {
+					break outer
+				}
+			}
+		}
+		(*u.l).Debugf("[%s] stopped request listener", client.ID)
+	}()
+}
+
+func (u *clientsUseCase) testIfClientIsAlive(client *extendedClient, close chan<- bool) {
+	client.Send <- u.encoder.Encode(lrp.NewMesssage(lrp.OprStillAlive, []byte{}))
+	client.lastCheck = time.Now().UnixMilli()
+	(*u.l).Warnf("[%s] checking if alive", client.ID)
+	<-time.After(u.maxResponseLatency)
+	if client.lastCheck > 0 {
+		// client did not respond in time
+		(*u.l).Warnf("[%s] client inactive", client.ID)
+		client.Close <- true
+		close <- true
+		(*u.l).Warnf("[%s] client closed", client.ID)
+		return
+	}
 }
 
 func (u *clientsUseCase) handleMessage(msg []byte, from *extendedClient) {

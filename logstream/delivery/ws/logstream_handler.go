@@ -46,24 +46,22 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 		conn.Close()
 		return
 	}
-	closed := make(chan bool)
 
 	defer func() {
-		closed <- true
-		close(closed)
-		conn.WriteMessage(websocket.CloseMessage, []byte{})
-		conn.Close()
 		h.cu.DestroyClient(context.Background(), client.ID)
-		(*h.l).Debugf("closed connection %s", client.ID)
+		conn.Close()
 	}()
 
 	go func() {
 		for {
 			select {
-			case <-closed:
+			case <-client.Close:
+				(*h.l).Debugf("closed connection %s", client.ID)
+				conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			case message := <-client.Send:
 				if message == nil {
+					client.Close <- true
 					return
 				}
 				err = conn.WriteMessage(mt, message)
@@ -77,9 +75,10 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 	(*h.l).Debugf("connected %s", client.ID)
 	for {
 		if mt, msg, err = conn.ReadMessage(); err != nil {
-			if !websocket.IsCloseError(err, 1000) {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived) {
 				(*h.l).Errorf("[%s] error while receiving message %s", client.ID, err)
 			}
+			client.Close <- true
 			break
 		}
 		client.Receive <- msg

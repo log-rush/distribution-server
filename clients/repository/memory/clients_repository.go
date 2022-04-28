@@ -23,6 +23,7 @@ func (u *clientsMemoryRepository) Create(ctx context.Context) (domain.Client, er
 		ID:      id,
 		Send:    make(chan []byte),
 		Receive: make(chan []byte),
+		Close:   make(chan bool, 2),
 	}
 	u.clients[id] = client
 
@@ -44,6 +45,7 @@ func (u *clientsMemoryRepository) Remove(ctx context.Context, id string) error {
 	}
 	close(client.Send)
 	close(client.Receive)
+	close(client.Close)
 	delete(u.clients, id)
 	return nil
 }
