@@ -29,6 +29,12 @@ type LogStreamResponse struct {
 	Alias string `json:"alias"`
 }
 
+type LogStreamWithSecretResponse struct {
+	ID        string `json:"id"`
+	Alias     string `json:"alias"`
+	SecretKey string `json:"key"`
+}
+
 func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 	handler := &LogStreamHttpHandler{
 		lsu: us,
@@ -39,6 +45,7 @@ func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 	streams := app.Group("/stream")
 	streams.Post("/register", handler.RegisterStream)
 	streams.Post("/unregister", handler.UnregisterStream)
+	streams.Get("/:id", handler.GetStream)
 }
 
 // Register Streams godoc
@@ -104,6 +111,36 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 	}
 
 	c.JSON(http_common.SuccessResponse{Success: true})
+	return c.SendStatus(http.StatusOK)
+}
+
+// Get Stream godoc
+// @ID get-stream
+// @Router /streams/{id} [get]
+// @Tags logstream
+// @Description get info about a logstream
+// @Summary fetch a stream
+// @Produce json
+// @Success 200 {object} LogStreamResponse
+// @Success 400 {object} http_common.ErrorResponse
+// @Success 404 {object} http_common.ErrorResponse
+// @Failure 500 {object} http_common.ErrorResponse
+func (h *LogStreamHttpHandler) GetStream(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+
+	if id == "" {
+		c.JSON(http_common.ErrorResponse{Message: "error: please provide an id"})
+		return c.SendStatus(http.StatusBadRequest)
+	}
+
+	stream, err := h.lsu.GetStream(ctx, id)
+	if err != nil {
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
+		return c.SendStatus(getStatusCode(err))
+	}
+
+	c.JSON(LogStreamResponse{ID: stream.ID, Alias: stream.Alias})
 	return c.SendStatus(http.StatusOK)
 }
 

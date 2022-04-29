@@ -109,3 +109,16 @@ func (u *logStreamUseCase) GetAvailableStreams(ctx context.Context) ([]domain.Lo
 
 	return streams, nil
 }
+
+func (u *logStreamUseCase) GetStream(ctx context.Context, streamId string) (domain.LogStream, error) {
+	context, cancel := context.WithTimeout(ctx, u.timeout)
+	defer cancel()
+
+	stream, err := u.lsRepo.GetStream(context, streamId)
+	if err != nil {
+		(*u.l).Warnf("error while fetching stream %s: %s", streamId, err.Error())
+		return domain.LogStream{}, err
+	}
+
+	return stream, nil
+}

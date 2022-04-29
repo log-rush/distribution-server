@@ -14,6 +14,7 @@ type LogStreamUseCase interface {
 	RegisterStream(ctx context.Context, alias string) (LogStream, error)
 	UnregisterStream(ctx context.Context, id string) error
 	GetAvailableStreams(ctx context.Context) ([]LogStream, error)
+	GetStream(ctx context.Context, stream string) (LogStream, error)
 }
 
 type LogStreamRepository interface {
