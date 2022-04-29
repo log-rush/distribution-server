@@ -20,9 +20,10 @@ func NewLogStreamRepository() domain.LogStreamRepository {
 func (repo *logStreamRepository) CreateStream(ctx context.Context, alias string) (domain.LogStream, error) {
 	entityId := repository.GenerateID()
 	entity := domain.LogStream{
-		ID:     entityId,
-		Alias:  alias,
-		Stream: make(domain.LogsChannel, 16), // TODO: move to config?
+		ID:        entityId,
+		Alias:     alias,
+		Stream:    make(domain.LogsChannel, 16), // TODO: move to config?
+		SecretKey: repository.GenerateID(),
 	}
 
 	(*repo.streams)[entityId] = entity

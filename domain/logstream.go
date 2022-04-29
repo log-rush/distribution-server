@@ -3,16 +3,17 @@ package domain
 import "context"
 
 type LogStream struct {
-	ID     string      `json:"id"`
-	Alias  string      `json:"alias"`
-	Stream LogsChannel `json:"-"`
+	ID        string      `json:"id"`
+	Alias     string      `json:"alias"`
+	SecretKey string      `json:"-"`
+	Stream    LogsChannel `json:"-"`
 }
 
 type LogsChannel chan []Log
 
 type LogStreamUseCase interface {
 	RegisterStream(ctx context.Context, alias string) (LogStream, error)
-	UnregisterStream(ctx context.Context, id string) error
+	UnregisterStream(ctx context.Context, id, key string) error
 	GetAvailableStreams(ctx context.Context) ([]LogStream, error)
 	GetStream(ctx context.Context, stream string) (LogStream, error)
 }

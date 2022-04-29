@@ -17,7 +17,8 @@ type RegisterRequest struct {
 }
 
 type UnregisterRequest struct {
-	ID string `json:"id"`
+	ID        string `json:"id"`
+	SecretKey string `json:"key"`
 }
 
 type LogStreamsResponse struct {
@@ -56,7 +57,7 @@ func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 // @Summary register a logstream
 // @Accept json
 // @Produce json
-// @Success 200 {object} LogStreamResponse
+// @Success 200 {object} LogStreamWithSecretResponse
 // @Failure 409 {object} http_common.ErrorResponse
 // @Failure 422 {object} http_common.ErrorResponse
 // @Failure 500 {object} http_common.ErrorResponse
@@ -77,7 +78,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 		return c.SendStatus(getStatusCode(err))
 	}
 
-	c.JSON(stream)
+	c.JSON(LogStreamWithSecretResponse{ID: stream.ID, Alias: stream.Alias, SecretKey: stream.SecretKey})
 	return c.SendStatus(http.StatusOK)
 }
 
@@ -90,6 +91,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} http_common.SuccessResponse
+// @Failure 403 {object} http_common.ErrorResponse
 // @Failure 404 {object} http_common.ErrorResponse
 // @Failure 422 {object} http_common.ErrorResponse
 // @Failure 500 {object} http_common.ErrorResponse
@@ -104,7 +106,7 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 
 	//TODO: validate
 
-	err := h.lsu.UnregisterStream(ctx, payload.ID)
+	err := h.lsu.UnregisterStream(ctx, payload.ID, payload.SecretKey)
 	if err != nil {
 		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
@@ -180,6 +182,8 @@ func getStatusCode(err error) int {
 		return http.StatusConflict
 	case domain.ErrStreamNotFound:
 		return http.StatusNotFound
+	case domain.ErrNotAllowed:
+		return http.StatusForbidden
 	default:
 		return http.StatusInternalServerError
 	}

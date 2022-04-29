@@ -54,9 +54,19 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (do
 	return stream, nil
 }
 
-func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) error {
+func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id, key string) error {
 	_ctx, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()
+
+	stream, err := u.lsRepo.GetStream(_ctx, id)
+	if err != nil {
+		(*u.l).Errorf("error while fetching stream %s: %s", id, err.Error())
+		return err
+	}
+
+	if stream.SecretKey != key {
+		return domain.ErrNotAllowed
+	}
 
 	errGroup, context := errgroup.WithContext(_ctx)
 	errGroup.Go(func() error {
@@ -90,7 +100,7 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id string) erro
 		return nil
 	})
 
-	err := errGroup.Wait()
+	err = errGroup.Wait()
 	if err != nil {
 		(*u.l).Infof("deleted stream %s", id)
 	}
