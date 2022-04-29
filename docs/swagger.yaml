@@ -14,6 +14,15 @@ definitions:
       id:
         type: string
     type: object
+  http.LogStreamWithSecretResponse:
+    properties:
+      alias:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+    type: object
   http.LogStreamsResponse:
     properties:
       streams:
@@ -126,7 +135,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/http.LogStreamResponse'
+            $ref: '#/definitions/http.LogStreamWithSecretResponse'
         "409":
           description: Conflict
           schema:
@@ -155,6 +164,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/http_common.SuccessResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/http_common.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -186,6 +199,32 @@ paths:
           schema:
             $ref: '#/definitions/http_common.ErrorResponse'
       summary: list all streams
+      tags:
+      - logstream
+  /streams/{id}:
+    get:
+      description: get info about a logstream
+      operationId: get-stream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.LogStreamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_common.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_common.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_common.ErrorResponse'
+      summary: fetch a stream
       tags:
       - logstream
 swagger: "2.0"

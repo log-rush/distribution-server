@@ -146,7 +146,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/http.LogStreamResponse"
+                            "$ref": "#/definitions/http.LogStreamWithSecretResponse"
                         }
                     },
                     "409": {
@@ -189,6 +189,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/http_common.SuccessResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/http_common.ErrorResponse"
                         }
                     },
                     "404": {
@@ -238,6 +244,45 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/streams/{id}": {
+            "get": {
+                "description": "get info about a logstream",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logstream"
+                ],
+                "summary": "fetch a stream",
+                "operationId": "get-stream",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.LogStreamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http_common.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http_common.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http_common.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -259,6 +304,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.LogStreamWithSecretResponse": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
                     "type": "string"
                 }
             }
