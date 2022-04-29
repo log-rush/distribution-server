@@ -5,15 +5,17 @@ import "github.com/gofiber/fiber/v2"
 type configHandler struct {
 	version string
 	name    string
+	id      string
 }
 
 type InfoResponse struct {
+	ID      string `json:"id"`
 	Version string `json:"version"`
 	Name    string `json:"name"`
 }
 
-func NewConfigHttpHandler(app *fiber.App, version, name string) {
-	handler := configHandler{version, name}
+func NewConfigHttpHandler(app *fiber.App, version, name, id string) {
+	handler := configHandler{version, name, id}
 
 	app.Get("/info", handler.getInfo)
 }
@@ -30,5 +32,6 @@ func (h *configHandler) getInfo(c *fiber.Ctx) error {
 	return c.Status(200).JSON(InfoResponse{
 		Version: h.version,
 		Name:    h.name,
+		ID:      h.id,
 	})
 }

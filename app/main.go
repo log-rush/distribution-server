@@ -47,6 +47,7 @@ func main() {
 	config := domain.Config{
 		Name:                     "Simple log-rush distribution server",
 		Version:                  "0.0.0",
+		ServerID:                 "dev-server",
 		Timeout:                  time.Millisecond * 500,
 		LogWorkers:               runtime.NumCPU() * 4,
 		MaxAmountOfStoredLogs:    5,
@@ -81,7 +82,7 @@ func main() {
 	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
 	_lHttpHandler.NewLogHandler(app, logUseCase)
 	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase, mainLogger.Named("[websockets]"))
-	_cfHttpHandler.NewConfigHttpHandler(app, config.Version, config.Name)
+	_cfHttpHandler.NewConfigHttpHandler(app, config.Version, config.Name, config.ServerID)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))
