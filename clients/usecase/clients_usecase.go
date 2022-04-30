@@ -110,7 +110,7 @@ func (u *clientsUseCase) handleClient(c domain.Client) {
 			case <-timer.C:
 				go u.testIfClientIsAlive(&client, closed)
 			case msg := <-client.Receive:
-				if msg != nil {
+				if len(msg) > 0 {
 					(*u.l).Debugf("[%s] received %s ", client.ID, msg)
 					u.handleMessage(msg, &client)
 				} else {
