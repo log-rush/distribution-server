@@ -51,8 +51,8 @@ func main() {
 		Timeout:                  time.Millisecond * 500,
 		LogWorkers:               runtime.NumCPU() * 4,
 		MaxAmountOfStoredLogs:    5,
-		ClientCheckInterval:      time.Minute * 5,
-		MaxClientResponseLatency: time.Second * 5,
+		ClientCheckInterval:      time.Minute * 1,
+		MaxClientResponseLatency: time.Second * 2,
 	}
 
 	app.Use(func(c *fiber.Ctx) error {

@@ -83,15 +83,6 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 	return errGroup.Wait()
 }
 
-func (u *clientsUseCase) handleError(err error, from *extendedClient) bool {
-	if err != nil {
-		(*u.l).Warnf("[%s] received errornous message (result: %s)", from.ID, err.Error())
-		from.Send <- u.encoder.Encode(lrp.LRPMessage{OPCode: lrp.OprErr, Payload: []byte(err.Error())})
-		return true
-	}
-	return false
-}
-
 func (u *clientsUseCase) handleClient(c domain.Client) {
 	client := extendedClient{
 		Client:    c,
@@ -111,7 +102,6 @@ func (u *clientsUseCase) handleClient(c domain.Client) {
 				go u.testIfClientIsAlive(&client, closed)
 			case msg := <-client.Receive:
 				if len(msg) > 0 {
-					(*u.l).Debugf("[%s] received %s ", client.ID, msg)
 					u.handleMessage(msg, &client)
 				} else {
 					break outer
@@ -139,22 +129,32 @@ func (u *clientsUseCase) testIfClientIsAlive(client *extendedClient, close chan<
 
 func (u *clientsUseCase) handleMessage(msg []byte, from *extendedClient) {
 	message, err := u.decoder.Decode(msg)
-	if u.handleError(err, from) {
+	if u.handleError(err, msg, from) {
 		return
 	}
+	(*u.l).Debugf("[%s] received %b", from.ID, message.OPCode)
 	ctx, cancel := context.WithTimeout(context.Background(), u.timeout)
 	defer cancel()
 
 	if message.OPCode == lrp.OprSubscribe {
 		err := u.sRepo.AddSubscription(ctx, string(message.Payload), from.Client)
-		u.handleError(err, from)
+		u.handleError(err, msg, from)
 		(*u.l).Infof("[%s] subscribed %s", from.ID, string(message.Payload))
 	} else if message.OPCode == lrp.OprUnsubscribe {
 		err := u.sRepo.RemoveSubscription(ctx, string(message.Payload), from.ID)
-		u.handleError(err, from)
+		u.handleError(err, msg, from)
 		(*u.l).Infof("[%s] unsubscribed %s", from.ID, string(message.Payload))
 	} else if message.OPCode == lrp.OprAlive {
 		from.lastCheck = -1
 		(*u.l).Infof("[%s] still alive", from.ID)
 	}
+}
+
+func (u *clientsUseCase) handleError(err error, msg []byte, from *extendedClient) bool {
+	if err != nil {
+		(*u.l).Warnf("[%s] received errornous message %s (result: %s)", from.ID, msg, err.Error())
+		from.Send <- u.encoder.Encode(lrp.LRPMessage{OPCode: lrp.OprErr, Payload: []byte(err.Error())})
+		return true
+	}
+	return false
 }
