@@ -56,6 +56,7 @@ func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
 // @Description create a new logstream on the server so that client can subscribe to it
 // @Summary register a logstream
 // @Accept json
+// @Param Payload body RegisterRequest true "information about the logstream to create"
 // @Produce json
 // @Success 200 {object} LogStreamWithSecretResponse
 // @Failure 409 {object} http_common.ErrorResponse
@@ -89,6 +90,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 // @Description delete a logstream an close all open connection to it
 // @Summary unregister a logstream
 // @Accept json
+// @Param Payload body UnregisterRequest true "information about the logstream to unregister"
 // @Produce json
 // @Success 200 {object} http_common.SuccessResponse
 // @Failure 403 {object} http_common.ErrorResponse

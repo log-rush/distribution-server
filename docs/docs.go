@@ -37,6 +37,17 @@ const docTemplate = `{
                 ],
                 "summary": "push multiple logs at once",
                 "operationId": "batch",
+                "parameters": [
+                    {
+                        "description": "batch some logs",
+                        "name": "Payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.LogBatchRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -100,6 +111,17 @@ const docTemplate = `{
                 ],
                 "summary": "push a log",
                 "operationId": "log",
+                "parameters": [
+                    {
+                        "description": "send a log",
+                        "name": "Payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.LogRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -142,6 +164,17 @@ const docTemplate = `{
                 ],
                 "summary": "register a logstream",
                 "operationId": "register-stream",
+                "parameters": [
+                    {
+                        "description": "information about the logstream to create",
+                        "name": "Payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.RegisterRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -184,6 +217,17 @@ const docTemplate = `{
                 ],
                 "summary": "unregister a logstream",
                 "operationId": "unregister-stream",
+                "parameters": [
+                    {
+                        "description": "information about the logstream to unregister",
+                        "name": "Payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.UnregisterRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -300,6 +344,45 @@ const docTemplate = `{
                 }
             }
         },
+        "http.LogBatchRequest": {
+            "type": "object",
+            "properties": {
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/http.LogBatchSingleLog"
+                    }
+                },
+                "stream": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.LogBatchSingleLog": {
+            "type": "object",
+            "properties": {
+                "log": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.LogRequest": {
+            "type": "object",
+            "properties": {
+                "log": {
+                    "type": "string"
+                },
+                "stream": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
         "http.LogStreamResponse": {
             "type": "object",
             "properties": {
@@ -333,6 +416,25 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/http.LogStreamResponse"
                     }
+                }
+            }
+        },
+        "http.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.UnregisterRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
                 }
             }
         },

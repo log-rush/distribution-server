@@ -19,11 +19,13 @@ type LogRequest struct {
 }
 
 type LogBatchRequest struct {
-	Stream string `json:"stream"`
-	Logs   [](struct {
-		Timestamp int    `json:"timestamp"`
-		Log       string `json:"log"`
-	}) `json:"logs"`
+	Stream string              `json:"stream"`
+	Logs   []LogBatchSingleLog `json:"logs"`
+}
+
+type LogBatchSingleLog struct {
+	Timestamp int    `json:"timestamp"`
+	Log       string `json:"log"`
 }
 
 func NewLogHandler(app *fiber.App, us domain.LogUseCase) {
@@ -42,6 +44,7 @@ func NewLogHandler(app *fiber.App, us domain.LogUseCase) {
 // @Description add a new log on a logstream
 // @Summary push a log
 // @Accept json
+// @Param Payload body LogRequest true "send a log"
 // @Produce json
 // @Success 200 {object} http_common.SuccessResponse
 // @Failure 404 {object} http_common.ErrorResponse
@@ -79,6 +82,7 @@ func (h *LogHttpHandler) Log(c *fiber.Ctx) error {
 // @Description add a bunch of logs at once to a stream
 // @Summary push multiple logs at once
 // @Accept json
+// @Param Payload body LogBatchRequest true "batch some logs"
 // @Produce json
 // @Success 200 {object} http_common.SuccessResponse
 // @Failure 404 {object} http_common.ErrorResponse
