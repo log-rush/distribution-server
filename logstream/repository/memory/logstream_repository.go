@@ -17,13 +17,21 @@ func NewLogStreamRepository() domain.LogStreamRepository {
 	}
 }
 
-func (repo *logStreamRepository) CreateStream(ctx context.Context, alias string) (domain.LogStream, error) {
-	entityId := repository.GenerateID()
+func (repo *logStreamRepository) CreateStream(ctx context.Context, alias, id, key string) (domain.LogStream, error) {
+	entityId := id
+	if entityId == "" {
+		entityId = repository.GenerateID()
+	}
+	entityKey := key
+	if entityKey == "" {
+		entityKey = repository.GenerateID()
+	}
+
 	entity := domain.LogStream{
 		ID:        entityId,
 		Alias:     alias,
 		Stream:    make(domain.LogsChannel, 16), // TODO: move to config?
-		SecretKey: repository.GenerateID(),
+		SecretKey: entityKey,
 	}
 
 	(*repo.streams)[entityId] = entity

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/log-rush/simple-server/domain"
@@ -31,11 +32,23 @@ func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.S
 	return u
 }
 
-func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias string) (domain.LogStream, error) {
+func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias, id, key string) (domain.LogStream, error) {
 	context, cancel := context.WithTimeout(ctx, u.timeout)
 	defer cancel()
 
-	stream, err := u.lsRepo.CreateStream(context, alias)
+	existingStream, err := u.lsRepo.GetStream(context, id)
+	if err != nil && !errors.Is(err, domain.ErrStreamNotFound) {
+		(*u.l).Warnf("error while fetching stream %s: %s", id, err.Error())
+		return domain.LogStream{}, err
+	}
+
+	if err == nil && existingStream.SecretKey != key {
+		return domain.LogStream{}, domain.ErrNotAllowed
+	} else if err == nil {
+		return existingStream, nil
+	}
+
+	stream, err := u.lsRepo.CreateStream(context, alias, id, key)
 	if err != nil {
 		(*u.l).Errorf("error while creating stream: %s", err.Error())
 		return domain.LogStream{}, err

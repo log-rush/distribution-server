@@ -14,6 +14,8 @@ type LogStreamHttpHandler struct {
 
 type RegisterRequest struct {
 	Alias string `json:"alias"`
+	ID    string `json:"id"`
+	Key   string `json:"key"`
 }
 
 type UnregisterRequest struct {
@@ -73,7 +75,7 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 
 	//TODO: validate
 
-	stream, err := h.lsu.RegisterStream(ctx, payload.Alias)
+	stream, err := h.lsu.RegisterStream(ctx, payload.Alias, payload.ID, payload.Key)
 	if err != nil {
 		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
