@@ -8,6 +8,7 @@ type Config struct {
 	ServerID                 string
 	Timeout                  time.Duration
 	LogWorkers               int
+	LogsChannelBuffer        int
 	MaxAmountOfStoredLogs    int
 	ClientCheckInterval      time.Duration
 	MaxClientResponseLatency time.Duration

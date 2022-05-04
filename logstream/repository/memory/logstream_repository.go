@@ -8,12 +8,14 @@ import (
 )
 
 type logStreamRepository struct {
-	streams *map[string]domain.LogStream
+	streams           *map[string]domain.LogStream
+	logsChannelBuffer int
 }
 
-func NewLogStreamRepository() domain.LogStreamRepository {
+func NewLogStreamRepository(logsChannelBuffer int) domain.LogStreamRepository {
 	return &logStreamRepository{
-		streams: &map[string]domain.LogStream{},
+		streams:           &map[string]domain.LogStream{},
+		logsChannelBuffer: logsChannelBuffer,
 	}
 }
 
@@ -30,7 +32,7 @@ func (repo *logStreamRepository) CreateStream(ctx context.Context, alias, id, ke
 	entity := domain.LogStream{
 		ID:        entityId,
 		Alias:     alias,
-		Stream:    make(domain.LogsChannel, 16), // TODO: move to config?
+		Stream:    make(domain.LogsChannel, repo.logsChannelBuffer),
 		SecretKey: entityKey,
 	}
 

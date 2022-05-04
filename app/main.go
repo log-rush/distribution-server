@@ -50,7 +50,8 @@ func main() {
 		ServerID:                 "dev-server",
 		Timeout:                  time.Millisecond * 500,
 		LogWorkers:               runtime.NumCPU() * 4,
-		MaxAmountOfStoredLogs:    5,
+		MaxAmountOfStoredLogs:    100,
+		LogsChannelBuffer:        16,
 		ClientCheckInterval:      time.Minute * 1,
 		MaxClientResponseLatency: time.Second * 2,
 	}
@@ -71,7 +72,7 @@ func main() {
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
 	logRepo := _lRepo.NewLogRepository(config.MaxAmountOfStoredLogs)
-	logStreamRepo := _lsRepo.NewLogStreamRepository()
+	logStreamRepo := _lsRepo.NewLogStreamRepository(config.LogsChannelBuffer)
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
 	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)
 
