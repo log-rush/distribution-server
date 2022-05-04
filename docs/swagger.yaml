@@ -17,6 +17,9 @@ definitions:
         type: array
       stream:
         type: string
+    required:
+    - logs
+    - stream
     type: object
   http.LogBatchSingleLog:
     properties:
@@ -33,6 +36,8 @@ definitions:
         type: string
       timestamp:
         type: integer
+    required:
+    - stream
     type: object
   http.LogStreamResponse:
     properties:
@@ -61,6 +66,12 @@ definitions:
     properties:
       alias:
         type: string
+      id:
+        type: string
+      key:
+        type: string
+    required:
+    - alias
     type: object
   http.UnregisterRequest:
     properties:
@@ -68,6 +79,9 @@ definitions:
         type: string
       key:
         type: string
+    required:
+    - id
+    - key
     type: object
   http_common.ErrorResponse:
     properties:

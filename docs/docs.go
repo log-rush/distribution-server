@@ -346,6 +346,10 @@ const docTemplate = `{
         },
         "http.LogBatchRequest": {
             "type": "object",
+            "required": [
+                "logs",
+                "stream"
+            ],
             "properties": {
                 "logs": {
                     "type": "array",
@@ -371,6 +375,9 @@ const docTemplate = `{
         },
         "http.LogRequest": {
             "type": "object",
+            "required": [
+                "stream"
+            ],
             "properties": {
                 "log": {
                     "type": "string"
@@ -421,14 +428,27 @@ const docTemplate = `{
         },
         "http.RegisterRequest": {
             "type": "object",
+            "required": [
+                "alias"
+            ],
             "properties": {
                 "alias": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
                     "type": "string"
                 }
             }
         },
         "http.UnregisterRequest": {
             "type": "object",
+            "required": [
+                "id",
+                "key"
+            ],
             "properties": {
                 "id": {
                     "type": "string"
