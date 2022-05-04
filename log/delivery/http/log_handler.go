@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	validator "github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	http_common "github.com/log-rush/simple-server/common/delivery/http"
 	"github.com/log-rush/simple-server/domain"
@@ -13,14 +14,14 @@ type LogHttpHandler struct {
 }
 
 type LogRequest struct {
-	Stream    string `json:"stream"`
+	Stream    string `json:"stream" validate:"required"`
 	Log       string `json:"log"`
 	Timestamp int    `json:"timestamp"`
 }
 
 type LogBatchRequest struct {
-	Stream string              `json:"stream"`
-	Logs   []LogBatchSingleLog `json:"logs"`
+	Stream string              `json:"stream" validate:"required"`
+	Logs   []LogBatchSingleLog `json:"logs" validate:"required"`
 }
 
 type LogBatchSingleLog struct {
@@ -59,9 +60,14 @@ func (h *LogHttpHandler) Log(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
-	//TODO: validate
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
+		return c.SendStatus(http.StatusUnprocessableEntity)
+	}
 
-	err := h.lu.SendLog(ctx, payload.Stream, &domain.Log{
+	err = h.lu.SendLog(ctx, payload.Stream, &domain.Log{
 		Message:   payload.Log,
 		Stream:    payload.Stream,
 		TimeStamp: payload.Timestamp,
@@ -97,7 +103,13 @@ func (h *LogHttpHandler) LogBatch(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
-	//TODO: validate
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
+		return c.SendStatus(http.StatusUnprocessableEntity)
+	}
+
 	logs := make([]domain.Log, len(payload.Logs))
 	for idx, log := range payload.Logs {
 		logs[idx] = domain.Log{
@@ -107,7 +119,7 @@ func (h *LogHttpHandler) LogBatch(c *fiber.Ctx) error {
 		}
 	}
 
-	err := h.lu.SendLogBatch(ctx, payload.Stream, &logs)
+	err = h.lu.SendLogBatch(ctx, payload.Stream, &logs)
 	if err != nil {
 		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))

@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	validator "github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	http_common "github.com/log-rush/simple-server/common/delivery/http"
 	"github.com/log-rush/simple-server/domain"
@@ -13,14 +14,14 @@ type LogStreamHttpHandler struct {
 }
 
 type RegisterRequest struct {
-	Alias string `json:"alias"`
+	Alias string `json:"alias" validate:"required"`
 	ID    string `json:"id"`
 	Key   string `json:"key"`
 }
 
 type UnregisterRequest struct {
-	ID        string `json:"id"`
-	SecretKey string `json:"key"`
+	ID        string `json:"id" validate:"required"`
+	SecretKey string `json:"key" validate:"required"`
 }
 
 type LogStreamsResponse struct {
@@ -73,7 +74,12 @@ func (h *LogStreamHttpHandler) RegisterStream(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
-	//TODO: validate
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
+		return c.SendStatus(http.StatusUnprocessableEntity)
+	}
 
 	stream, err := h.lsu.RegisterStream(ctx, payload.Alias, payload.ID, payload.Key)
 	if err != nil {
@@ -108,9 +114,14 @@ func (h *LogStreamHttpHandler) UnregisterStream(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusUnprocessableEntity)
 	}
 
-	//TODO: validate
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		c.JSON(http_common.ErrorResponse{Message: err.Error()})
+		return c.SendStatus(http.StatusUnprocessableEntity)
+	}
 
-	err := h.lsu.UnregisterStream(ctx, payload.ID, payload.SecretKey)
+	err = h.lsu.UnregisterStream(ctx, payload.ID, payload.SecretKey)
 	if err != nil {
 		c.JSON(http_common.ErrorResponse{Message: err.Error()})
 		return c.SendStatus(getStatusCode(err))
