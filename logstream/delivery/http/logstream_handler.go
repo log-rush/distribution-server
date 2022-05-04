@@ -186,7 +186,9 @@ func getStatusCode(err error) int {
 		return http.StatusConflict
 	case domain.ErrStreamNotFound:
 		return http.StatusNotFound
-	case domain.ErrNotAllowed:
+	case domain.ErrUnregisterNotAllowed:
+		return http.StatusForbidden
+	case domain.ErrRegisterNotAllowed:
 		return http.StatusForbidden
 	default:
 		return http.StatusInternalServerError

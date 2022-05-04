@@ -43,7 +43,7 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias, id, key st
 	}
 
 	if err == nil && existingStream.SecretKey != key {
-		return domain.LogStream{}, domain.ErrNotAllowed
+		return domain.LogStream{}, domain.ErrRegisterNotAllowed
 	} else if err == nil {
 		return existingStream, nil
 	}
@@ -78,7 +78,7 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id, key string)
 	}
 
 	if stream.SecretKey != key {
-		return domain.ErrNotAllowed
+		return domain.ErrUnregisterNotAllowed
 	}
 
 	errGroup, context := errgroup.WithContext(_ctx)
