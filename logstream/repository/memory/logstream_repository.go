@@ -60,8 +60,10 @@ func (repo *logStreamRepository) DeleteStream(ctx context.Context, id string) er
 
 func (repo *logStreamRepository) ListStreams(ctx context.Context) ([]domain.LogStream, error) {
 	streams := make([]domain.LogStream, len(*repo.streams))
+	idx := 0
 	for _, stream := range *repo.streams {
-		streams = append(streams, stream)
+		streams[idx] = stream
+		idx += 1
 	}
 	return streams, nil
 }
