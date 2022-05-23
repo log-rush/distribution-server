@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/log-rush/simple-server/domain"
@@ -10,6 +11,7 @@ import (
 )
 
 type clientsUseCase struct {
+	lRepo               domain.LogRepository
 	cRepo               domain.ClientsRepository
 	sRepo               domain.SubscriptionsRepository
 	decoder             lrp.LRPDecoder
@@ -28,6 +30,7 @@ type extendedClient struct {
 func NewClientsUseCase(
 	clientsRepo domain.ClientsRepository,
 	subscriptions domain.SubscriptionsRepository,
+	logsRepo domain.LogRepository,
 	clientCheckInterval time.Duration,
 	maxResponseLatency time.Duration,
 	timeout time.Duration,
@@ -36,6 +39,7 @@ func NewClientsUseCase(
 	return &clientsUseCase{
 		cRepo:               clientsRepo,
 		sRepo:               subscriptions,
+		lRepo:               logsRepo,
 		decoder:             lrp.NewDecoder(),
 		encoder:             lrp.NewEncoder(),
 		clientCheckInterval: clientCheckInterval,
@@ -137,9 +141,29 @@ func (u *clientsUseCase) handleMessage(msg []byte, from *extendedClient) {
 	defer cancel()
 
 	if message.OPCode == lrp.OprSubscribe {
-		err := u.sRepo.AddSubscription(ctx, string(message.Payload), from.Client)
+		errGroup, context := errgroup.WithContext(ctx)
+		errGroup.Go(func() error {
+			err := u.sRepo.AddSubscription(ctx, string(message.Payload), from.Client)
+			if err == nil {
+				(*u.l).Infof("[%s] subscribed %s", from.ID, string(message.Payload))
+			}
+			return err
+		})
+
+		errGroup.Go(func() error {
+			logs, err := u.lRepo.FetchLogs(context, string(message.Payload))
+			if err == nil {
+				(*u.l).Infof("[%s] sending %s cached logs", from.ID, len(logs))
+				for _, log := range logs {
+					from.Send <- u.encoder.Encode(lrp.LRPMessage{OPCode: lrp.OprLog, Payload: []byte(string(message.Payload) + "," + strconv.Itoa(log.TimeStamp) + "," + log.Message)})
+				}
+			}
+			return err
+		})
+
+		err := errGroup.Wait()
 		u.handleError(err, msg, from)
-		(*u.l).Infof("[%s] subscribed %s", from.ID, string(message.Payload))
+
 	} else if message.OPCode == lrp.OprUnsubscribe {
 		err := u.sRepo.RemoveSubscription(ctx, string(message.Payload), from.ID)
 		u.handleError(err, msg, from)
