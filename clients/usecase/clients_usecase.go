@@ -153,7 +153,7 @@ func (u *clientsUseCase) handleMessage(msg []byte, from *extendedClient) {
 		errGroup.Go(func() error {
 			logs, err := u.lRepo.FetchLogs(context, string(message.Payload))
 			if err == nil {
-				(*u.l).Infof("[%s] sending %s cached logs", from.ID, len(logs))
+				(*u.l).Infof("[%s] sending %d cached logs", from.ID, len(logs))
 				for _, log := range logs {
 					from.Send <- u.encoder.Encode(lrp.LRPMessage{OPCode: lrp.OprLog, Payload: []byte(string(message.Payload) + "," + strconv.Itoa(log.TimeStamp) + "," + log.Message)})
 				}
