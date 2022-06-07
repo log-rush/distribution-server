@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"runtime"
 	"time"
@@ -40,7 +41,11 @@ import (
 // @Tag.name log
 // @Tag.description all endpoints for logs
 func main() {
-	app := fiber.New()
+	isProd := flag.Bool("prod", false, "Indicates if the server should be run in production mode")
+	app := fiber.New(fiber.Config{
+		Prefork:           *isProd,
+		EnablePrintRoutes: true,
+	})
 
 	mainLogger := CreateLogger()
 	fiberLogger := mainLogger.Named("[server]")
@@ -56,6 +61,10 @@ func main() {
 		MaxClientResponseLatency: time.Second * 2,
 	}
 
+	app.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
+	}))
+
 	app.Use(func(c *fiber.Ctx) error {
 		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
 		err := c.Next()
@@ -67,9 +76,12 @@ func main() {
 		return err
 	})
 	app.Use(cors.New())
-	app.Use(recover.New())
 
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
+
+	app.Get("/test", func(c *fiber.Ctx) error {
+		panic("test")
+	})
 
 	logRepo := _lRepo.NewLogRepository(config.MaxAmountOfStoredLogs)
 	logStreamRepo := _lsRepo.NewLogStreamRepository(config.LogsChannelBuffer)
