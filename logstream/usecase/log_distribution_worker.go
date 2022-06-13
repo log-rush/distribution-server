@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/simple-server/pkg/commons"
 	"github.com/log-rush/simple-server/pkg/lrp"
 )
 
@@ -50,6 +51,7 @@ func NewPool(maxWorkers int, subscriptionRepo *domain.SubscriptionsRepository, l
 func (p logDistributionWorkerPool) Start() {
 	(*p.l).Debugf("started worker pool (%d instances)", p.maxWorkers)
 	go func() {
+		defer commons.RecoverRoutine(p.l)
 		for err := range p.results {
 			if err != nil {
 				(*p.l).Warnf("error in worker: %s", err.Error())
@@ -91,6 +93,7 @@ func newWorker(id int, jobs <-chan logJob, result chan<- error, repo *domain.Sub
 }
 
 func (w *logDistributionWorker) work() {
+	defer commons.RecoverRoutine(w.l)
 	for {
 		select {
 		case job := <-w.jobs:
@@ -103,6 +106,7 @@ func (w *logDistributionWorker) work() {
 			for _, client := range subscribers {
 				wg.Add(1)
 				go func(client domain.Client) {
+					defer commons.RecoverRoutine(w.l)
 					for _, log := range job.logs {
 						client.Send <- encoder.Encode(lrp.NewMesssage(lrp.OprLog, []byte(job.stream+","+strconv.Itoa(log.TimeStamp)+","+log.Message)))
 					}

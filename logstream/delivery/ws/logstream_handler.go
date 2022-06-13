@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/simple-server/pkg/commons"
 )
 
 type logStreamWsHandler struct {
@@ -53,6 +54,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 	}()
 
 	go func() {
+		defer commons.RecoverRoutine(h.l)
 		for {
 			select {
 			case <-client.Close:

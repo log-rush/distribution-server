@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/simple-server/pkg/commons"
 	"github.com/log-rush/simple-server/pkg/lrp"
 	"golang.org/x/sync/errgroup"
 )
@@ -56,12 +57,13 @@ func (u *logStreamUseCase) RegisterStream(ctx context.Context, alias, id, key st
 	(*u.l).Infof("created stream %s", stream.ID)
 
 	go func() {
+		defer commons.RecoverRoutine(u.l)
+		defer (*u.l).Debugf("[%s] stopped log listener", stream.ID)
 		(*u.l).Debugf("[%s] starting log listener", stream.ID)
 		for logs := range stream.Stream {
 			(*u.l).Debugf("[%s] received logs (%d) ", stream.ID, len(logs))
 			u.pool.PostJob(logs, stream.ID)
 		}
-		(*u.l).Debugf("[%s] stopped log listener", stream.ID)
 	}()
 
 	return stream, nil

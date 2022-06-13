@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/simple-server/pkg/commons"
 	"github.com/log-rush/simple-server/pkg/lrp"
 	"golang.org/x/sync/errgroup"
 )
@@ -88,6 +89,7 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 }
 
 func (u *clientsUseCase) handleClient(c domain.Client) {
+	defer commons.RecoverRoutine(u.l)
 	client := extendedClient{
 		Client:    c,
 		lastCheck: time.Now().UnixMilli(),
@@ -96,6 +98,7 @@ func (u *clientsUseCase) handleClient(c domain.Client) {
 	timer := time.NewTicker(u.clientCheckInterval)
 	closed := make(chan bool)
 	go func() {
+		defer commons.RecoverRoutine(u.l)
 		(*u.l).Debugf("[%s] started request listener", client.ID)
 	outer:
 		for {
@@ -117,6 +120,7 @@ func (u *clientsUseCase) handleClient(c domain.Client) {
 }
 
 func (u *clientsUseCase) testIfClientIsAlive(client *extendedClient, close chan<- bool) {
+	defer commons.RecoverRoutine(u.l)
 	client.Send <- u.encoder.Encode(lrp.NewMesssage(lrp.OprStillAlive, []byte{}))
 	client.lastCheck = time.Now().UnixMilli()
 	(*u.l).Warnf("[%s] checking if alive", client.ID)
