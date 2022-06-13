@@ -8,8 +8,8 @@ import (
 
 func RecoverRoutine(logger *domain.Logger) {
 	r := recover()
-	if err := r.(error); err != nil {
-		(*logger).Errorf("error occurred in goroutine: %s", err.Error())
+	if r != nil {
+		(*logger).Errorf("error occurred in goroutine: %s", (r).(error).Error())
 		debug.PrintStack()
 	}
 }
