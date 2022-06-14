@@ -123,7 +123,7 @@ func (u *clientsUseCase) testIfClientIsAlive(client *extendedClient, close chan<
 	defer commons.RecoverRoutine(u.l)
 	client.Send <- u.encoder.Encode(lrp.NewMesssage(lrp.OprStillAlive, []byte{}))
 	client.lastCheck = time.Now().UnixMilli()
-	(*u.l).Warnf("[%s] checking if alive", client.ID)
+	(*u.l).Infof("[%s] checking if alive", client.ID)
 	<-time.After(u.maxResponseLatency)
 	if client.lastCheck > 0 {
 		// client did not respond in time

@@ -103,6 +103,7 @@ func (w *logDistributionWorker) work() {
 				w.results <- err
 			}
 			wg := sync.WaitGroup{}
+			(*w.l).Debugf("[%d] sending to %d subscribers", w.id, len(subscribers))
 			for _, client := range subscribers {
 				wg.Add(1)
 				go func(client domain.Client) {
