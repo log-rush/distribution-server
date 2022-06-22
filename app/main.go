@@ -1,11 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"runtime"
 	"time"
 
+	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/pkg/distributionServer"
 )
+
+type testPlugin struct{}
+
+func (x testPlugin) HandleLog(stream string, log domain.Log) {
+	fmt.Printf("[custom plugin]: %s | %s\n", stream, log.Message)
+}
 
 func main() {
 	config := distributionServer.Config{
@@ -24,5 +32,9 @@ func main() {
 	}
 
 	server := distributionServer.NewServer(config)
+
+	x := testPlugin{}
+	server.UseLogPlugin(x)
+
 	server.Start()
 }
