@@ -103,3 +103,7 @@ func (s server) Stop() error {
 func (s server) UseLogPlugin(plugin LogPlugin) {
 	*s.logPlugins = append(*s.logPlugins, plugin)
 }
+
+func (s server) UsePlugin(plugin Plugin) {
+	s.UseLogPlugin(plugin.logPlugin)
+}
