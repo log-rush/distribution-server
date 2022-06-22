@@ -5,8 +5,8 @@ import (
 
 	validator "github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	http_common "github.com/log-rush/simple-server/common/delivery/http"
-	"github.com/log-rush/simple-server/domain"
+	http_common "github.com/log-rush/distribution-server/common/delivery/http"
+	"github.com/log-rush/distribution-server/domain"
 )
 
 type LogHttpHandler struct {

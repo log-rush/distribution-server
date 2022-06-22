@@ -3,8 +3,8 @@ package memory
 import (
 	"context"
 
-	"github.com/log-rush/simple-server/clients/repository"
-	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/distribution-server/clients/repository"
+	"github.com/log-rush/distribution-server/domain"
 )
 
 type clientsMemoryRepository struct {

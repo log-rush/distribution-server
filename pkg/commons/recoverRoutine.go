@@ -3,7 +3,7 @@ package commons
 import (
 	"runtime/debug"
 
-	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/distribution-server/domain"
 )
 
 func RecoverRoutine(logger *domain.Logger) {

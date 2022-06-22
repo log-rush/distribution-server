@@ -1,4 +1,4 @@
-module github.com/log-rush/simple-server
+module github.com/log-rush/distribution-server
 
 go 1.18
 

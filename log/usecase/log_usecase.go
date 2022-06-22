@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/log-rush/simple-server/domain"
+	"github.com/log-rush/distribution-server/domain"
 	"golang.org/x/sync/errgroup"
 )
 

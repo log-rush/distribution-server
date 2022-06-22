@@ -1,4 +1,4 @@
-# log-rush-simple-server
+# log-rush-distribution-server
 
 A log distribution server implementing the log-rush datasource spec.
 
@@ -11,9 +11,9 @@ This service aims to be:
 
 1. Install Go 1.18 (for instructions see [here](https://go.dev/doc/install))
 2. Clone this repository 
-   - ssh: `git clone git@github.com:log-rush/simple-server.git` 
-   - https: `git clone https://github.com/log-rush/simple-server.git`
-   - github cli: `gh repo clone log-rush/simple-server`
+   - ssh: `git clone git@github.com:log-rush/distribution-server.git` 
+   - https: `git clone https://github.com/log-rush/distribution-server.git`
+   - github cli: `gh repo clone log-rush/distribution-server`
 3. Install dependencies: `go mod download`
 4. Build the binary: `sh ./scripts/build.sh`
 5. Run the binary `./log-rush-server`

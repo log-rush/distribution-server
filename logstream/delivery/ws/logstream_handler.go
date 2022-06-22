@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
-	"github.com/log-rush/simple-server/domain"
-	"github.com/log-rush/simple-server/pkg/commons"
+	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/commons"
 )
 
 type logStreamWsHandler struct {

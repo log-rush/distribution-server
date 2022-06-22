@@ -10,30 +10,30 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
-	_cRepo "github.com/log-rush/simple-server/clients/repository/memory"
-	_cUseCase "github.com/log-rush/simple-server/clients/usecase"
-	_cfHttpHandler "github.com/log-rush/simple-server/config/delivery/http"
-	_ "github.com/log-rush/simple-server/docs"
-	"github.com/log-rush/simple-server/domain"
-	_lHttpHandler "github.com/log-rush/simple-server/log/delivery/http"
-	_lRepo "github.com/log-rush/simple-server/log/repository/memory"
-	_lUseCase "github.com/log-rush/simple-server/log/usecase"
-	_lsHttpHandler "github.com/log-rush/simple-server/logstream/delivery/http"
-	_lsWsHandler "github.com/log-rush/simple-server/logstream/delivery/ws"
-	_lsRepo "github.com/log-rush/simple-server/logstream/repository/memory"
-	_lsUseCase "github.com/log-rush/simple-server/logstream/usecase"
-	_sRepo "github.com/log-rush/simple-server/subscriptions/repository/memory"
+	_cRepo "github.com/log-rush/distribution-server/clients/repository/memory"
+	_cUseCase "github.com/log-rush/distribution-server/clients/usecase"
+	_cfHttpHandler "github.com/log-rush/distribution-server/config/delivery/http"
+	_ "github.com/log-rush/distribution-server/docs"
+	"github.com/log-rush/distribution-server/domain"
+	_lHttpHandler "github.com/log-rush/distribution-server/log/delivery/http"
+	_lRepo "github.com/log-rush/distribution-server/log/repository/memory"
+	_lUseCase "github.com/log-rush/distribution-server/log/usecase"
+	_lsHttpHandler "github.com/log-rush/distribution-server/logstream/delivery/http"
+	_lsWsHandler "github.com/log-rush/distribution-server/logstream/delivery/ws"
+	_lsRepo "github.com/log-rush/distribution-server/logstream/repository/memory"
+	_lsUseCase "github.com/log-rush/distribution-server/logstream/usecase"
+	_sRepo "github.com/log-rush/distribution-server/subscriptions/repository/memory"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-// @title log-rush simple server
+// @title log-rush-distribution-server
 // @version 1.0
-// @description this is an example log-rush server
+// @description this is a log-rush log distribution server
 // @contact.name API Support
 // @contact.email contact@fabiankachlock.dev
-// @license.name n.a.
-// @license.url n.a.
+// @license.name MIT
+// @license.url https://github.com/log-rush/distribution-server/blob/main/LICENSE
 // @host localhost:7000
 // @BasePath /
 // @Tag.name logstream

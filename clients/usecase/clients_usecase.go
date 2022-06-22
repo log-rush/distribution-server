@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/log-rush/simple-server/domain"
-	"github.com/log-rush/simple-server/pkg/commons"
-	"github.com/log-rush/simple-server/pkg/lrp"
+	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/commons"
+	"github.com/log-rush/distribution-server/pkg/lrp"
 	"golang.org/x/sync/errgroup"
 )
 
