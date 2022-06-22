@@ -15,8 +15,8 @@ const docTemplate = `{
             "email": "contact@fabiankachlock.dev"
         },
         "license": {
-            "name": "n.a.",
-            "url": "n.a."
+            "name": "MIT",
+            "url": "https://github.com/log-rush/distribution-server/blob/main/LICENSE"
         },
         "version": "{{.Version}}"
     },
@@ -493,8 +493,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:7000",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "log-rush simple server",
-	Description:      "this is an example log-rush server",
+	Title:            "log-rush-distribution-server",
+	Description:      "this is a log-rush log distribution server",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

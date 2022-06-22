@@ -98,11 +98,11 @@ info:
   contact:
     email: contact@fabiankachlock.dev
     name: API Support
-  description: this is an example log-rush server
+  description: this is a log-rush log distribution server
   license:
-    name: n.a.
-    url: n.a.
-  title: log-rush simple server
+    name: MIT
+    url: https://github.com/log-rush/distribution-server/blob/main/LICENSE
+  title: log-rush-distribution-server
   version: "1.0"
 paths:
   /batch:
