@@ -20,12 +20,12 @@ type logStreamUseCase struct {
 	l       *domain.Logger
 }
 
-func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, maxAmountOfWorkers int, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
+func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, logPlugins *[]domain.LogPlugin, maxAmountOfWorkers int, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
 	u := &logStreamUseCase{
 		lsRepo:  repo,
 		sRepo:   supscriptions,
 		timeout: timeout,
-		pool:    NewPool(maxAmountOfWorkers, &supscriptions, logger),
+		pool:    NewPool(maxAmountOfWorkers, &supscriptions, logPlugins, logger),
 		l:       &logger,
 		encoder: lrp.NewEncoder(),
 	}

@@ -8,6 +8,9 @@ import (
 )
 
 type Log = domain.Log
+
+type LogPlugin = domain.LogPlugin
+
 type Config struct {
 	Version                  string
 	Name                     string
@@ -22,9 +25,9 @@ type Config struct {
 	Host                     string
 	Port                     int
 }
-type LogHandler = func(streamId string, log Log)
 
 type server struct {
-	server *fiber.App
-	config Config
+	server     *fiber.App
+	config     Config
+	logPlugins *[]LogPlugin
 }

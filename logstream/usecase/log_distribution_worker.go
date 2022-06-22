@@ -19,25 +19,27 @@ type logDistributionWorkerPool struct {
 	workers          []*logDistributionWorker
 	maxWorkers       int
 	subscriptionRepo *domain.SubscriptionsRepository
+	logPlugins       *[]domain.LogPlugin
 	jobs             chan logJob
 	results          chan error
 	l                *domain.Logger
 }
 
 type logDistributionWorker struct {
-	id      int
-	stop    chan bool
-	jobs    <-chan logJob
-	results chan<- error
-	l       *domain.Logger
-	repo    *domain.SubscriptionsRepository
+	id         int
+	stop       chan bool
+	jobs       <-chan logJob
+	results    chan<- error
+	l          *domain.Logger
+	repo       *domain.SubscriptionsRepository
+	logPlugins *[]domain.LogPlugin
 }
 
 var (
 	encoder = lrp.NewEncoder()
 )
 
-func NewPool(maxWorkers int, subscriptionRepo *domain.SubscriptionsRepository, logger domain.Logger) logDistributionWorkerPool {
+func NewPool(maxWorkers int, subscriptionRepo *domain.SubscriptionsRepository, logPlugins *[]domain.LogPlugin, logger domain.Logger) logDistributionWorkerPool {
 	return logDistributionWorkerPool{
 		maxWorkers:       maxWorkers,
 		subscriptionRepo: subscriptionRepo,
@@ -45,6 +47,7 @@ func NewPool(maxWorkers int, subscriptionRepo *domain.SubscriptionsRepository, l
 		results:          make(chan error),
 		l:                &logger,
 		workers:          []*logDistributionWorker{},
+		logPlugins:       logPlugins,
 	}
 }
 
@@ -60,7 +63,7 @@ func (p logDistributionWorkerPool) Start() {
 	}()
 
 	for i := 0; i < p.maxWorkers; i++ {
-		worker := newWorker(i, p.jobs, p.results, p.subscriptionRepo, p.l)
+		worker := newWorker(i, p.jobs, p.results, p.subscriptionRepo, p.logPlugins, p.l)
 		p.workers = append(p.workers, worker)
 		go worker.work()
 		(*p.l).Debugf("[%d] worker started", worker.id)
@@ -81,14 +84,15 @@ func (p logDistributionWorkerPool) Stop() {
 	}
 }
 
-func newWorker(id int, jobs <-chan logJob, result chan<- error, repo *domain.SubscriptionsRepository, logger *domain.Logger) *logDistributionWorker {
+func newWorker(id int, jobs <-chan logJob, result chan<- error, repo *domain.SubscriptionsRepository, logPlugins *[]domain.LogPlugin, logger *domain.Logger) *logDistributionWorker {
 	return &logDistributionWorker{
-		id:      id,
-		jobs:    jobs,
-		stop:    make(chan bool),
-		results: result,
-		repo:    repo,
-		l:       logger,
+		id:         id,
+		jobs:       jobs,
+		stop:       make(chan bool),
+		results:    result,
+		repo:       repo,
+		l:          logger,
+		logPlugins: logPlugins,
 	}
 }
 
@@ -98,11 +102,12 @@ func (w *logDistributionWorker) work() {
 		select {
 		case job := <-w.jobs:
 			(*w.l).Debugf("[%d] worker received job", w.id)
+			wg := sync.WaitGroup{}
 			subscribers, err := (*w.repo).GetSubscribers(context.Background(), job.stream)
 			if err != nil {
 				w.results <- err
 			}
-			wg := sync.WaitGroup{}
+
 			(*w.l).Debugf("[%d] sending to %d subscribers", w.id, len(subscribers))
 			for _, client := range subscribers {
 				wg.Add(1)
@@ -114,6 +119,18 @@ func (w *logDistributionWorker) work() {
 					wg.Done()
 				}(client)
 			}
+
+			(*w.l).Debugf("[%d] sending to %d plugins", w.id, len(*w.logPlugins))
+			wg.Add(1)
+			go func() {
+				for _, plugin := range *w.logPlugins {
+					for _, log := range job.logs {
+						plugin.HandleLog(job.stream, log)
+					}
+				}
+				wg.Done()
+			}()
+
 			wg.Wait()
 		case <-w.stop:
 			return

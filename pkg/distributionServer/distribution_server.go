@@ -40,6 +40,11 @@ func NewServer(config Config) server {
 		Prefork:           config.Production,
 		EnablePrintRoutes: !config.Production,
 	})
+	server := server{
+		server:     app,
+		config:     config,
+		logPlugins: &[]LogPlugin{},
+	}
 
 	mainLogger := createLogger()
 	fiberLogger := mainLogger.Named("[server]")
@@ -71,7 +76,7 @@ func NewServer(config Config) server {
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
 	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)
 
-	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, config.LogWorkers, config.Timeout, mainLogger.Named("[logstream]"))
+	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, server.logPlugins, config.LogWorkers, config.Timeout, mainLogger.Named("[logstream]"))
 	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, config.Timeout, mainLogger.Named("[logs]"))
 	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, logRepo, config.ClientCheckInterval, config.MaxClientResponseLatency, config.Timeout, mainLogger.Named("[clients]"))
 
@@ -84,10 +89,7 @@ func NewServer(config Config) server {
 		return c.Send([]byte("pong"))
 	})
 
-	return server{
-		server: app,
-		config: config,
-	}
+	return server
 }
 
 func (s server) Start() {
@@ -96,4 +98,8 @@ func (s server) Start() {
 
 func (s server) Stop() error {
 	return s.server.Shutdown()
+}
+
+func (s server) UseLogPlugin(plugin LogPlugin) {
+	*s.logPlugins = append(*s.logPlugins, plugin)
 }
