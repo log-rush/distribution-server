@@ -20,6 +20,7 @@ import (
 	_lsRepo "github.com/log-rush/distribution-server/logstream/repository/memory"
 	_lsUseCase "github.com/log-rush/distribution-server/logstream/usecase"
 	_sRepo "github.com/log-rush/distribution-server/subscriptions/repository/memory"
+	logRush "github.com/log-rush/server-devkit"
 )
 
 // @title log-rush-distribution-server
@@ -35,7 +36,7 @@ import (
 // @Tag.description all endpoints for logstreams
 // @Tag.name log
 // @Tag.description all endpoints for logs
-func NewServer(config Config) server {
+func NewServer(config Config) *server {
 	app := fiber.New(fiber.Config{
 		Prefork:           config.Production,
 		EnablePrintRoutes: !config.Production,
@@ -43,7 +44,7 @@ func NewServer(config Config) server {
 	server := server{
 		server:     app,
 		config:     config,
-		logPlugins: &[]LogPlugin{},
+		logPlugins: &[]logRush.LogPlugin{},
 	}
 
 	mainLogger := createLogger()
@@ -89,21 +90,21 @@ func NewServer(config Config) server {
 		return c.Send([]byte("pong"))
 	})
 
-	return server
+	return &server
 }
 
-func (s server) Start() {
+func (s *server) Start() {
 	log.Fatal(s.server.Listen(fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)))
 }
 
-func (s server) Stop() error {
+func (s *server) Stop() error {
 	return s.server.Shutdown()
 }
 
-func (s server) UseLogPlugin(plugin LogPlugin) {
+func (s *server) UseLogPlugin(plugin logRush.LogPlugin) {
 	*s.logPlugins = append(*s.logPlugins, plugin)
 }
 
-func (s server) UsePlugin(plugin Plugin) {
-	s.UseLogPlugin(plugin.logPlugin)
+func (s *server) UsePlugin(plugin logRush.Plugin) {
+	s.UseLogPlugin(plugin)
 }

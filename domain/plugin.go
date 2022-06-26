@@ -1,5 +1,5 @@
 package domain
 
-type LogPlugin interface {
-	HandleLog(streamId string, log Log)
-}
+import logRush "github.com/log-rush/server-devkit"
+
+type LogPlugin = logRush.LogPlugin

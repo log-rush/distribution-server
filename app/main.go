@@ -1,19 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"runtime"
 	"time"
 
-	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/pkg/distributionServer"
+	storageAdapterFs "github.com/log-rush/persistency-adapter-fs"
+	pluginPersistency "github.com/log-rush/plugin-persistency"
 )
-
-type testPlugin struct{}
-
-func (x testPlugin) HandleLog(stream string, log domain.Log) {
-	fmt.Printf("[custom plugin]: %s | %s\n", stream, log.Message)
-}
 
 func main() {
 	config := distributionServer.Config{
@@ -33,8 +28,24 @@ func main() {
 
 	server := distributionServer.NewServer(config)
 
-	x := testPlugin{}
-	server.UseLogPlugin(x)
+	adapter, err := storageAdapterFs.NewFSStorageAdapter(storageAdapterFs.Config{
+		BasePath:              "./_logs",
+		OpenHandleTimeout:     time.Minute * 10,
+		ForceUpdateOnMidnight: false,
+		DateFormat:            "02_01_06",
+	})
+	if err != nil {
+		log.Fatalf("cant init fs storage adapter\n")
+	}
+
+	plugin := pluginPersistency.NewPersistencyPlugin(pluginPersistency.Config{
+		Adapter:          adapter,
+		LogDelimiter:     "\n",
+		StreamsBlacklist: []string{},
+		StreamsWhitelist: []string{},
+	})
+
+	server.UsePlugin(*plugin.Plugin)
 
 	server.Start()
 }

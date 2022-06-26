@@ -125,7 +125,7 @@ func (w *logDistributionWorker) work() {
 			go func() {
 				for _, plugin := range *w.logPlugins {
 					for _, log := range job.logs {
-						plugin.HandleLog(job.stream, log)
+						plugin.HandleLog(log)
 					}
 				}
 				wg.Done()

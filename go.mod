@@ -26,7 +26,11 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/log-rush/persistency-adapter-fs v0.0.0 // indirect
+	github.com/log-rush/plugin-persistency v0.0.1 // indirect
+	github.com/log-rush/server-devkit v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20220401102855-e56b59f40436 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

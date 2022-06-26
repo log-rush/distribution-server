@@ -4,12 +4,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/log-rush/distribution-server/domain"
+	logRush "github.com/log-rush/server-devkit"
 )
-
-type Log = domain.Log
-
-type LogPlugin = domain.LogPlugin
 
 type Config struct {
 	Version                  string
@@ -29,5 +25,5 @@ type Config struct {
 type server struct {
 	server     *fiber.App
 	config     Config
-	logPlugins *[]LogPlugin
+	logPlugins *[]logRush.LogPlugin
 }
