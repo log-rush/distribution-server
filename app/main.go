@@ -29,10 +29,12 @@ func main() {
 	server := distributionServer.NewServer(config)
 
 	adapter, err := storageAdapterFs.NewFSStorageAdapter(storageAdapterFs.Config{
-		BasePath:              "./_logs",
-		OpenHandleTimeout:     time.Minute * 10,
-		ForceUpdateOnMidnight: false,
-		DateFormat:            "02_01_06",
+		BasePath:                "./_logs",
+		OpenHandleTimeout:       time.Minute * 10,
+		ForceUpdateOnMidnight:   false,
+		DateFormat:              "02_01_06",
+		GroupStreamsIntoFolders: true,
+		FilePermissions:         0744,
 	})
 	if err != nil {
 		log.Fatalf("cant init fs storage adapter\n")
