@@ -20,7 +20,7 @@ import (
 	_lsRepo "github.com/log-rush/distribution-server/logstream/repository/memory"
 	_lsUseCase "github.com/log-rush/distribution-server/logstream/usecase"
 	_sRepo "github.com/log-rush/distribution-server/subscriptions/repository/memory"
-	logRush "github.com/log-rush/server-devkit"
+	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 // @title log-rush-distribution-server
@@ -42,9 +42,10 @@ func NewServer(config Config) *server {
 		EnablePrintRoutes: !config.Production,
 	})
 	server := server{
-		server:     app,
-		config:     config,
-		logPlugins: &[]logRush.LogPlugin{},
+		server:        app,
+		config:        config,
+		logPlugins:    &[]logRush.Plugin{},
+		routerPlugins: &[]logRush.Plugin{},
 	}
 
 	mainLogger := createLogger()
@@ -68,10 +69,6 @@ func NewServer(config Config) *server {
 
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
 
-	app.Get("/test", func(c *fiber.Ctx) error {
-		panic("test")
-	})
-
 	logRepo := _lRepo.NewLogRepository(config.MaxAmountOfStoredLogs)
 	logStreamRepo := _lsRepo.NewLogStreamRepository(config.LogsChannelBuffer)
 	clientsRepo := _cRepo.NewClientsMemoryrepository()
@@ -94,6 +91,13 @@ func NewServer(config Config) *server {
 }
 
 func (s *server) Start() {
+	fmt.Println(*s.routerPlugins)
+	for _, plugin := range *s.routerPlugins {
+		router := s.server.Group("/plugins/" + plugin.Name())
+		fmt.Println("setting up", plugin.Name())
+		plugin.SetupRouter(router)
+	}
+
 	log.Fatal(s.server.Listen(fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)))
 }
 
@@ -101,10 +105,17 @@ func (s *server) Stop() error {
 	return s.server.Shutdown()
 }
 
-func (s *server) UseLogPlugin(plugin logRush.LogPlugin) {
-	*s.logPlugins = append(*s.logPlugins, plugin)
-}
+// TODO: fix devkit package then uncomment (every plugin needs a name)
+// func (s *server) UseLogPlugin(plugin logRush.LogPlugin) {
+// 	*s.logPlugins = append(*s.logPlugins, plugin)
+// }
+//
+// func (s *server) UseRouterPlugin(plugin logRush.RouterPlugin) {
+// 	*s.routerPlugins = append(*s.routerPlugins, plugin)
+// }
 
 func (s *server) UsePlugin(plugin logRush.Plugin) {
-	s.UseLogPlugin(plugin)
+	fmt.Println("using", plugin.Name())
+	*s.logPlugins = append(*s.logPlugins, plugin)
+	*s.routerPlugins = append(*s.routerPlugins, plugin)
 }

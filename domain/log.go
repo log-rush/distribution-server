@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 
-	logRush "github.com/log-rush/server-devkit"
+	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 type Log = logRush.Log

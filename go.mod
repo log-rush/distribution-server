@@ -4,13 +4,13 @@ go 1.18
 
 require (
 	github.com/go-playground/validator/v10 v10.11.0
-	github.com/gofiber/fiber/v2 v2.32.0
+	github.com/gofiber/fiber/v2 v2.36.0
 	github.com/gofiber/swagger v0.0.1
 	github.com/gofiber/websocket/v2 v2.0.21
 	github.com/google/uuid v1.3.0
-	github.com/log-rush/persistency-adapter-fs v0.1.0
-	github.com/log-rush/plugin-persistency v0.0.1
-	github.com/log-rush/server-devkit v1.0.0
+	github.com/log-rush/persistency-adapter-fs v0.1.1
+	github.com/log-rush/plugin-persistency v0.1.0
+	github.com/log-rush/server-devkit/v2 v2.0.0
 	github.com/swaggo/swag v1.8.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -34,7 +34,7 @@ require (
 	github.com/savsgio/gotils v0.0.0-20220401102855-e56b59f40436 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.35.0 // indirect
+	github.com/valyala/fasthttp v1.38.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect

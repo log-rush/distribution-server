@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	logRush "github.com/log-rush/server-devkit"
+	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 type Config struct {
@@ -23,7 +23,8 @@ type Config struct {
 }
 
 type server struct {
-	server     *fiber.App
-	config     Config
-	logPlugins *[]logRush.LogPlugin
+	server        *fiber.App
+	config        Config
+	logPlugins    *[]logRush.Plugin
+	routerPlugins *[]logRush.Plugin
 }

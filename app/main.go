@@ -47,7 +47,13 @@ func main() {
 		StreamsWhitelist: []string{},
 	})
 
-	server.UsePlugin(*plugin.Plugin)
+	server.UsePlugin(plugin.Plugin)
+
+	// server.UsePlugin(devkit.NewPlugin("test", func(log logRush.Log) {}, func(router fiber.Router) {
+	// 	router.Get("/pong", func(c *fiber.Ctx) error {
+	// 		return c.SendString("ping")
+	// 	})
+	// }))
 
 	server.Start()
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/pkg/commons"
 	"github.com/log-rush/distribution-server/pkg/lrp"
+	logRush "github.com/log-rush/server-devkit/v2"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -20,7 +21,8 @@ type logStreamUseCase struct {
 	l       *domain.Logger
 }
 
-func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, logPlugins *[]domain.LogPlugin, maxAmountOfWorkers int, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
+// TODO: use log plugin
+func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, logPlugins *[]logRush.Plugin, maxAmountOfWorkers int, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
 	u := &logStreamUseCase{
 		lsRepo:  repo,
 		sRepo:   supscriptions,

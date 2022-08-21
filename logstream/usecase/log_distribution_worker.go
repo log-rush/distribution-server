@@ -8,6 +8,7 @@ import (
 	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/pkg/commons"
 	"github.com/log-rush/distribution-server/pkg/lrp"
+	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 type logJob struct {
@@ -19,7 +20,7 @@ type logDistributionWorkerPool struct {
 	workers          []*logDistributionWorker
 	maxWorkers       int
 	subscriptionRepo *domain.SubscriptionsRepository
-	logPlugins       *[]domain.LogPlugin
+	logPlugins       *[]logRush.Plugin
 	jobs             chan logJob
 	results          chan error
 	l                *domain.Logger
@@ -32,14 +33,15 @@ type logDistributionWorker struct {
 	results    chan<- error
 	l          *domain.Logger
 	repo       *domain.SubscriptionsRepository
-	logPlugins *[]domain.LogPlugin
+	logPlugins *[]logRush.Plugin
 }
 
 var (
 	encoder = lrp.NewEncoder()
 )
 
-func NewPool(maxWorkers int, subscriptionRepo *domain.SubscriptionsRepository, logPlugins *[]domain.LogPlugin, logger domain.Logger) logDistributionWorkerPool {
+// TODO: use log plugin
+func NewPool(maxWorkers int, subscriptionRepo *domain.SubscriptionsRepository, logPlugins *[]logRush.Plugin, logger domain.Logger) logDistributionWorkerPool {
 	return logDistributionWorkerPool{
 		maxWorkers:       maxWorkers,
 		subscriptionRepo: subscriptionRepo,
@@ -84,7 +86,7 @@ func (p logDistributionWorkerPool) Stop() {
 	}
 }
 
-func newWorker(id int, jobs <-chan logJob, result chan<- error, repo *domain.SubscriptionsRepository, logPlugins *[]domain.LogPlugin, logger *domain.Logger) *logDistributionWorker {
+func newWorker(id int, jobs <-chan logJob, result chan<- error, repo *domain.SubscriptionsRepository, logPlugins *[]logRush.Plugin, logger *domain.Logger) *logDistributionWorker {
 	return &logDistributionWorker{
 		id:         id,
 		jobs:       jobs,
