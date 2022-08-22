@@ -5,6 +5,7 @@ import (
 
 	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/logstream/repository"
+	"github.com/log-rush/distribution-server/pkg/app"
 )
 
 type logStreamRepository struct {
@@ -12,10 +13,10 @@ type logStreamRepository struct {
 	logsChannelBuffer int
 }
 
-func NewLogStreamRepository(logsChannelBuffer int) domain.LogStreamRepository {
+func NewLogStreamRepository(context *app.Context) domain.LogStreamRepository {
 	return &logStreamRepository{
 		streams:           &map[string]domain.LogStream{},
-		logsChannelBuffer: logsChannelBuffer,
+		logsChannelBuffer: context.Config.LogsChannelBuffer,
 	}
 }
 

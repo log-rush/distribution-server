@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -15,10 +16,11 @@ type logUseCase struct {
 	l       *domain.Logger
 }
 
-func NewLogUseCase(logsRepo domain.LogRepository, streamsRepo domain.LogStreamRepository, timeout time.Duration, logger domain.Logger) domain.LogUseCase {
+func NewLogUseCase(context *app.Context) domain.LogUseCase {
+	var logger domain.Logger = (*context.Logger).Named("[logs]")
 	return &logUseCase{
-		lRepo:  logsRepo,
-		lsRepo: streamsRepo,
+		lRepo:  context.Repos.Log,
+		lsRepo: context.Repos.LogStream,
 		l:      &logger,
 	}
 }

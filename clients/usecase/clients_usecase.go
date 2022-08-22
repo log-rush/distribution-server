@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 	"github.com/log-rush/distribution-server/pkg/commons"
 	"github.com/log-rush/distribution-server/pkg/lrp"
 	"golang.org/x/sync/errgroup"
@@ -28,24 +29,17 @@ type extendedClient struct {
 	lastCheck int64
 }
 
-func NewClientsUseCase(
-	clientsRepo domain.ClientsRepository,
-	subscriptions domain.SubscriptionsRepository,
-	logsRepo domain.LogRepository,
-	clientCheckInterval time.Duration,
-	maxResponseLatency time.Duration,
-	timeout time.Duration,
-	logger domain.Logger,
-) domain.ClientsUseCase {
+func NewClientsUseCase(context *app.Context) domain.ClientsUseCase {
+	var logger domain.Logger = (*context.Logger).Named("[clients]")
 	return &clientsUseCase{
-		cRepo:               clientsRepo,
-		sRepo:               subscriptions,
-		lRepo:               logsRepo,
+		cRepo:               context.Repos.Clients,
+		sRepo:               context.Repos.Subscriptions,
+		lRepo:               context.Repos.Log,
 		decoder:             lrp.NewDecoder(),
 		encoder:             lrp.NewEncoder(),
-		clientCheckInterval: clientCheckInterval,
-		maxResponseLatency:  maxResponseLatency,
-		timeout:             timeout,
+		clientCheckInterval: context.Config.ClientCheckInterval,
+		maxResponseLatency:  context.Config.MaxClientResponseLatency,
+		timeout:             context.Config.Timeout,
 		l:                   &logger,
 	}
 }

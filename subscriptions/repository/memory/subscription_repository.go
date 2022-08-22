@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 	"github.com/log-rush/distribution-server/subscriptions/repository"
 )
 
@@ -13,9 +14,9 @@ type subscriptionsRepository struct {
 	lsRepo        domain.LogStreamRepository
 }
 
-func NewSubscriptionsRepository(streamsRepo domain.LogStreamRepository) domain.SubscriptionsRepository {
+func NewSubscriptionsRepository(context *app.Context) domain.SubscriptionsRepository {
 	return &subscriptionsRepository{
-		lsRepo:        streamsRepo,
+		lsRepo:        context.Repos.LogStream,
 		subscribers:   map[string]*[]domain.Client{},
 		isSubscribing: map[string]*[]string{},
 	}

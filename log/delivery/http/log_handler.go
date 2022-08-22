@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	http_common "github.com/log-rush/distribution-server/common/delivery/http"
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 )
 
 type LogHttpHandler struct {
@@ -29,13 +30,13 @@ type LogBatchSingleLog struct {
 	Log       string `json:"log"`
 }
 
-func NewLogHandler(app *fiber.App, us domain.LogUseCase) {
+func NewLogHandler(context *app.Context) {
 	handler := &LogHttpHandler{
-		lu: us,
+		lu: context.UseCases.Log,
 	}
 
-	app.Post("/log", handler.Log)
-	app.Post("/batch", handler.LogBatch)
+	context.Server.Post("/log", handler.Log)
+	context.Server.Post("/batch", handler.LogBatch)
 }
 
 // Log godoc

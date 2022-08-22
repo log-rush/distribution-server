@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 	"github.com/log-rush/distribution-server/pkg/commons"
 )
 
@@ -15,15 +16,16 @@ type logStreamWsHandler struct {
 	l     *domain.Logger
 }
 
-func NewLogStreamWsHandler(app *fiber.App, clientManager domain.ClientsUseCase, logger domain.Logger) {
+func NewLogStreamWsHandler(context *app.Context) {
+	var logger domain.Logger = (*context.Logger).Named("[websockets]")
 	handler := &logStreamWsHandler{
 		conns: map[string]*websocket.Conn{},
-		cu:    clientManager,
+		cu:    context.UseCases.Clients,
 		l:     &logger,
 	}
 
-	app.Use("/subscribe", handler.AllowWebsocketUpgrades)
-	app.Get("/subscribe", websocket.New(handler.Connect))
+	context.Server.Use("/subscribe", handler.AllowWebsocketUpgrades)
+	context.Server.Get("/subscribe", websocket.New(handler.Connect))
 }
 
 func (h *logStreamWsHandler) AllowWebsocketUpgrades(c *fiber.Ctx) error {

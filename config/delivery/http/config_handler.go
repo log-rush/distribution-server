@@ -1,6 +1,9 @@
 package http
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/log-rush/distribution-server/pkg/app"
+)
 
 type configHandler struct {
 	version string
@@ -14,10 +17,14 @@ type InfoResponse struct {
 	Name    string `json:"name"`
 }
 
-func NewConfigHttpHandler(app *fiber.App, version, name, id string) {
-	handler := configHandler{version, name, id}
+func NewConfigHttpHandler(context *app.Context) {
+	handler := configHandler{
+		version: context.Config.Version,
+		name:    context.Config.Name,
+		id:      context.Config.ServerID,
+	}
 
-	app.Get("/info", handler.getInfo)
+	context.Server.Get("/info", handler.getInfo)
 }
 
 // get Info godoc

@@ -1,5 +1,7 @@
 package domain
 
+import "go.uber.org/zap"
+
 type Logger interface {
 	DPanic(args ...interface{})
 	DPanicf(template string, args ...interface{})
@@ -23,4 +25,5 @@ type Logger interface {
 	Warn(args ...interface{})
 	Warnf(template string, args ...interface{})
 	Warnw(msg string, keysAndValues ...interface{})
+	Named(name string) *zap.SugaredLogger // dont like that...
 }

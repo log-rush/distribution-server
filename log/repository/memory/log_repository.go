@@ -5,6 +5,7 @@ import (
 
 	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/log/repository"
+	"github.com/log-rush/distribution-server/pkg/app"
 )
 
 type logRepository struct {
@@ -12,10 +13,10 @@ type logRepository struct {
 	maxStoredAmount int
 }
 
-func NewLogRepository(amountOfStoredLogs int) domain.LogRepository {
+func NewLogRepository(context *app.Context) domain.LogRepository {
 	return &logRepository{
 		logs:            map[string]*repository.MaxLenQueue[domain.Log]{},
-		maxStoredAmount: amountOfStoredLogs,
+		maxStoredAmount: context.Config.MaxAmountOfStoredLogs,
 	}
 }
 

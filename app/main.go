@@ -5,13 +5,14 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/log-rush/distribution-server/pkg/app"
 	"github.com/log-rush/distribution-server/pkg/distributionServer"
 	storageAdapterFs "github.com/log-rush/persistency-adapter-fs"
 	pluginPersistency "github.com/log-rush/plugin-persistency"
 )
 
 func main() {
-	config := distributionServer.Config{
+	config := app.Config{
 		Name:                     "Simple log-rush distribution server",
 		Version:                  "0.0.0",
 		ServerID:                 "dev-server",

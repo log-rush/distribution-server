@@ -19,6 +19,7 @@ import (
 	_lsWsHandler "github.com/log-rush/distribution-server/logstream/delivery/ws"
 	_lsRepo "github.com/log-rush/distribution-server/logstream/repository/memory"
 	_lsUseCase "github.com/log-rush/distribution-server/logstream/usecase"
+	_app "github.com/log-rush/distribution-server/pkg/app"
 	_sRepo "github.com/log-rush/distribution-server/subscriptions/repository/memory"
 	logRush "github.com/log-rush/server-devkit/v2"
 )
@@ -36,25 +37,28 @@ import (
 // @Tag.description all endpoints for logstreams
 // @Tag.name log
 // @Tag.description all endpoints for logs
-func NewServer(config Config) *server {
+func NewServer(config _app.Config) *server {
 	app := fiber.New(fiber.Config{
 		Prefork:           config.Production,
 		EnablePrintRoutes: !config.Production,
 	})
+
+	var mainLogger = createLogger()
 	server := server{
-		server:        app,
-		config:        config,
-		logPlugins:    &[]logRush.Plugin{},
-		routerPlugins: &[]logRush.Plugin{},
+		server:  app,
+		config:  config,
+		context: _app.NewAppContext(config, app, &mainLogger),
 	}
 
-	mainLogger := createLogger()
-	fiberLogger := mainLogger.Named("[server]")
+	appContext := server.context
+	fiberLogger := (*appContext.Logger).Named("[server]")
 
+	// recover from errors in handlers
 	app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
 	}))
 
+	// log fiber requests
 	app.Use(func(c *fiber.Ctx) error {
 		fiberLogger.Infof("[%s] [%s] - %s", c.IP(), c.Method(), c.Path())
 		err := c.Next()
@@ -65,23 +69,25 @@ func NewServer(config Config) *server {
 		}
 		return err
 	})
+
+	// use cors
 	app.Use(cors.New())
+	// use swagger
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	app.Get("/swagger/*", swagger.HandlerDefault) // default
+	appContext.Repos.Log = _lRepo.NewLogRepository(appContext)
+	appContext.Repos.LogStream = _lsRepo.NewLogStreamRepository(appContext)
+	appContext.Repos.Clients = _cRepo.NewClientsMemoryRepository()
+	appContext.Repos.Subscriptions = _sRepo.NewSubscriptionsRepository(appContext)
 
-	logRepo := _lRepo.NewLogRepository(config.MaxAmountOfStoredLogs)
-	logStreamRepo := _lsRepo.NewLogStreamRepository(config.LogsChannelBuffer)
-	clientsRepo := _cRepo.NewClientsMemoryrepository()
-	subscriptionsRepo := _sRepo.NewSubscriptionsRepository(logStreamRepo)
+	appContext.UseCases.LogStream = _lsUseCase.NewLogStreamUseCase(appContext)
+	appContext.UseCases.Log = _lUseCase.NewLogUseCase(appContext)
+	appContext.UseCases.Clients = _cUseCase.NewClientsUseCase(appContext)
 
-	logStreamUseCase := _lsUseCase.NewLogStreamUseCase(logStreamRepo, subscriptionsRepo, server.logPlugins, config.LogWorkers, config.Timeout, mainLogger.Named("[logstream]"))
-	logUseCase := _lUseCase.NewLogUseCase(logRepo, logStreamRepo, config.Timeout, mainLogger.Named("[logs]"))
-	clientsUseCase := _cUseCase.NewClientsUseCase(clientsRepo, subscriptionsRepo, logRepo, config.ClientCheckInterval, config.MaxClientResponseLatency, config.Timeout, mainLogger.Named("[clients]"))
-
-	_lsHttpHandler.NewLogStreamHandler(app, logStreamUseCase)
-	_lHttpHandler.NewLogHandler(app, logUseCase)
-	_lsWsHandler.NewLogStreamWsHandler(app, clientsUseCase, mainLogger.Named("[websockets]"))
-	_cfHttpHandler.NewConfigHttpHandler(app, config.Version, config.Name, config.ServerID)
+	_lsHttpHandler.NewLogStreamHandler(appContext)
+	_lHttpHandler.NewLogHandler(appContext)
+	_lsWsHandler.NewLogStreamWsHandler(appContext)
+	_cfHttpHandler.NewConfigHttpHandler(appContext)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))
@@ -91,8 +97,7 @@ func NewServer(config Config) *server {
 }
 
 func (s *server) Start() {
-	fmt.Println(*s.routerPlugins)
-	for _, plugin := range *s.routerPlugins {
+	for _, plugin := range *s.context.Plugins.RouterPlugins {
 		router := s.server.Group("/plugins/" + plugin.Name())
 		fmt.Println("setting up", plugin.Name())
 		plugin.SetupRouter(router)
@@ -116,6 +121,6 @@ func (s *server) Stop() error {
 
 func (s *server) UsePlugin(plugin logRush.Plugin) {
 	fmt.Println("using", plugin.Name())
-	*s.logPlugins = append(*s.logPlugins, plugin)
-	*s.routerPlugins = append(*s.routerPlugins, plugin)
+	*s.context.Plugins.LogPlugins = append(*s.context.Plugins.LogPlugins, plugin)
+	*s.context.Plugins.RouterPlugins = append(*s.context.Plugins.RouterPlugins, plugin)
 }

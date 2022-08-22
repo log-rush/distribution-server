@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 	"github.com/log-rush/distribution-server/pkg/commons"
 	"github.com/log-rush/distribution-server/pkg/lrp"
-	logRush "github.com/log-rush/server-devkit/v2"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,16 +18,17 @@ type logStreamUseCase struct {
 	pool    logDistributionWorkerPool
 	encoder lrp.LRPEncoder
 	timeout time.Duration
-	l       *domain.Logger
+	l       *domain.Logger // TODO: dont let this be a pointer
 }
 
 // TODO: use log plugin
-func NewLogStreamUseCase(repo domain.LogStreamRepository, supscriptions domain.SubscriptionsRepository, logPlugins *[]logRush.Plugin, maxAmountOfWorkers int, timeout time.Duration, logger domain.Logger) domain.LogStreamUseCase {
+func NewLogStreamUseCase(context *app.Context) domain.LogStreamUseCase {
+	var logger domain.Logger = (*context.Logger).Named("[logstream]")
 	u := &logStreamUseCase{
-		lsRepo:  repo,
-		sRepo:   supscriptions,
-		timeout: timeout,
-		pool:    NewPool(maxAmountOfWorkers, &supscriptions, logPlugins, logger),
+		lsRepo:  context.Repos.LogStream,
+		sRepo:   context.Repos.Subscriptions,
+		timeout: context.Config.Timeout,
+		pool:    NewPool(context.Config.LogWorkers, &context.Repos.Subscriptions, context.Plugins.LogPlugins, (*context.Logger).Named("[logstream]")),
 		l:       &logger,
 		encoder: lrp.NewEncoder(),
 	}

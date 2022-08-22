@@ -11,7 +11,7 @@ type clientsMemoryRepository struct {
 	clients map[string]domain.Client
 }
 
-func NewClientsMemoryrepository() domain.ClientsRepository {
+func NewClientsMemoryRepository() domain.ClientsRepository {
 	return &clientsMemoryRepository{
 		clients: map[string]domain.Client{},
 	}

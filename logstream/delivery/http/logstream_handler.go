@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	http_common "github.com/log-rush/distribution-server/common/delivery/http"
 	"github.com/log-rush/distribution-server/domain"
+	"github.com/log-rush/distribution-server/pkg/app"
 )
 
 type LogStreamHttpHandler struct {
@@ -39,14 +40,13 @@ type LogStreamWithSecretResponse struct {
 	SecretKey string `json:"key"`
 }
 
-func NewLogStreamHandler(app *fiber.App, us domain.LogStreamUseCase) {
+func NewLogStreamHandler(context *app.Context) {
 	handler := &LogStreamHttpHandler{
-		lsu: us,
+		lsu: context.UseCases.LogStream,
 	}
+	context.Server.Get("/streams", handler.ListStreams)
 
-	app.Get("/streams", handler.ListStreams)
-
-	streams := app.Group("/stream")
+	streams := context.Server.Group("/stream")
 	streams.Post("/register", handler.RegisterStream)
 	streams.Post("/unregister", handler.UnregisterStream)
 	streams.Get("/:id", handler.GetStream)
