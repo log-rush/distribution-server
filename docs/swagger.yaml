@@ -62,6 +62,13 @@ definitions:
           $ref: '#/definitions/http.LogStreamResponse'
         type: array
     type: object
+  http.PluginsResponse:
+    properties:
+      routerPlugins:
+        items:
+          type: string
+        type: array
+    type: object
   http.RegisterRequest:
     properties:
       alias:
@@ -189,6 +196,20 @@ paths:
       summary: push a log
       tags:
       - log
+  /meta/plugins:
+    get:
+      description: get info about the used plugins
+      operationId: meta-plugins
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.PluginsResponse'
+      summary: get activates plugins
+      tags:
+      - system
   /stream/register:
     post:
       consumes:

@@ -150,6 +150,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/meta/plugins": {
+            "get": {
+                "description": "get info about the used plugins",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "get activates plugins",
+                "operationId": "meta-plugins",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.PluginsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stream/register": {
             "post": {
                 "description": "create a new logstream on the server so that client can subscribe to it",
@@ -422,6 +443,17 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/http.LogStreamResponse"
+                    }
+                }
+            }
+        },
+        "http.PluginsResponse": {
+            "type": "object",
+            "properties": {
+                "routerPlugins": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 }
             }
