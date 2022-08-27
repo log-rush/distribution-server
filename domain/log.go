@@ -2,12 +2,13 @@ package domain
 
 import (
 	"context"
-
-	logRush "github.com/log-rush/server-devkit/v2"
 )
 
-type Log = logRush.Log
-
+type Log struct {
+	Message   string `json:"message"`
+	TimeStamp int    `json:"timestamp"`
+	Stream    string `json:"stream"`
+}
 type LogUseCase interface {
 	SendLog(ctx context.Context, stream string, log *Log) error
 	SendLogBatch(ctx context.Context, stream string, logs *[]Log) error

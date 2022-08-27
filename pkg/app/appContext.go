@@ -3,15 +3,9 @@ package app
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/log-rush/distribution-server/domain"
-	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 type (
-	AppPlugins struct {
-		LogPlugins    *[]logRush.Plugin
-		RouterPlugins *[]logRush.Plugin
-	}
-
 	AppRepos struct {
 		Log           domain.LogRepository
 		LogStream     domain.LogStreamRepository
@@ -23,6 +17,12 @@ type (
 		Log       domain.LogUseCase
 		LogStream domain.LogStreamUseCase
 		Clients   domain.ClientsUseCase
+	}
+
+	AppPlugins struct {
+		LogPlugins    *[]LogPlugin
+		RouterPlugins *[]RouterPlugin
+		LoggerPlugins *[]LoggerPlugin
 	}
 
 	Context struct {
@@ -40,10 +40,6 @@ func NewAppContext(config Config, server *fiber.App, logger domain.Logger) *Cont
 		Config: config,
 		Server: server,
 		Logger: &logger,
-		Plugins: &AppPlugins{
-			LogPlugins:    &[]logRush.Plugin{},
-			RouterPlugins: &[]logRush.Plugin{},
-		},
 		Repos: &AppRepos{
 			Log:           nil,
 			LogStream:     nil,

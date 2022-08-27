@@ -20,8 +20,8 @@ import (
 	_lsRepo "github.com/log-rush/distribution-server/logstream/repository/memory"
 	_lsUseCase "github.com/log-rush/distribution-server/logstream/usecase"
 	_app "github.com/log-rush/distribution-server/pkg/app"
+	"github.com/log-rush/distribution-server/pkg/devkit"
 	_sRepo "github.com/log-rush/distribution-server/subscriptions/repository/memory"
-	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 // @title log-rush-distribution-server
@@ -100,7 +100,7 @@ func (s *server) Start() {
 	for _, plugin := range *s.context.Plugins.RouterPlugins {
 		router := s.server.Group("/plugins/" + plugin.Name())
 		fmt.Println("setting up", plugin.Name())
-		plugin.SetupRouter(router)
+		plugin.SetupRouter(router, s.context)
 	}
 
 	log.Fatal(s.server.Listen(fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)))
@@ -110,17 +110,22 @@ func (s *server) Stop() error {
 	return s.server.Shutdown()
 }
 
-// TODO: fix devkit package then uncomment (every plugin needs a name)
-// func (s *server) UseLogPlugin(plugin logRush.LogPlugin) {
-// 	*s.logPlugins = append(*s.logPlugins, plugin)
-// }
-//
-// func (s *server) UseRouterPlugin(plugin logRush.RouterPlugin) {
-// 	*s.routerPlugins = append(*s.routerPlugins, plugin)
-// }
+func (s *server) UsePlugin(plugin devkit.Plugin) {
+	fmt.Println("using", plugin.Name())
+	if plugin.LogHandler != nil {
+		*s.context.Plugins.LogPlugins = append(*s.context.Plugins.LogPlugins, plugin)
+	}
+	if plugin.LoggerHandler != nil {
+		*s.context.Plugins.LoggerPlugins = append(*s.context.Plugins.LoggerPlugins, plugin)
+	}
+	if plugin.RouterHandler != nil {
+		*s.context.Plugins.RouterPlugins = append(*s.context.Plugins.RouterPlugins, plugin)
+	}
+}
 
-func (s *server) UsePlugin(plugin logRush.Plugin) {
+func (s *server) UseExternalPlugin(plugin _app.Plugin) {
 	fmt.Println("using", plugin.Name())
 	*s.context.Plugins.LogPlugins = append(*s.context.Plugins.LogPlugins, plugin)
+	*s.context.Plugins.LoggerPlugins = append(*s.context.Plugins.LoggerPlugins, plugin)
 	*s.context.Plugins.RouterPlugins = append(*s.context.Plugins.RouterPlugins, plugin)
 }

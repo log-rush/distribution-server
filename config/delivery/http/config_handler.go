@@ -3,14 +3,13 @@ package http
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/log-rush/distribution-server/pkg/app"
-	logRush "github.com/log-rush/server-devkit/v2"
 )
 
 type configHandler struct {
 	version       string
 	name          string
 	id            string
-	routerPlugins *[]logRush.Plugin
+	routerPlugins *[]app.RouterPlugin
 }
 
 type InfoResponse struct {
