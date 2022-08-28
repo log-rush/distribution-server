@@ -40,6 +40,11 @@ func NewAppContext(config Config, server *fiber.App, logger domain.Logger) *Cont
 		Config: config,
 		Server: server,
 		Logger: &logger,
+		Plugins: &AppPlugins{
+			LogPlugins:    &[]LogPlugin{},
+			RouterPlugins: &[]RouterPlugin{},
+			LoggerPlugins: &[]LoggerPlugin{},
+		},
 		Repos: &AppRepos{
 			Log:           nil,
 			LogStream:     nil,

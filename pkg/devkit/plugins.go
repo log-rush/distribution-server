@@ -22,7 +22,7 @@ func (p Plugin) SetupRouter(router fiber.Router, context *app.Context) {
 }
 
 func (p Plugin) AppendLogger(context *app.Context) domain.Logger {
-	return p.AppendLogger(context)
+	return p.LoggerHandler(context)
 }
 
 func (p Plugin) Name() string {

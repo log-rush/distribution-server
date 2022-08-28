@@ -43,14 +43,27 @@ func NewServer(config _app.Config) *server {
 		EnablePrintRoutes: !config.Production,
 	})
 
-	var mainLogger = createLogger()
+	var mainLogger = NewMultiLogger(createLogger())
 	server := server{
 		server:  app,
 		config:  config,
-		context: _app.NewAppContext(config, app, &mainLogger),
+		context: _app.NewAppContext(config, app, mainLogger),
 	}
 
-	appContext := server.context
+	return &server
+}
+
+func (s *server) Start() {
+	appContext := s.context
+	app := s.server
+
+	// setup loggers
+	multiLogger := (*appContext.Logger).(*MultiLogger)
+	for _, p := range *appContext.Plugins.LoggerPlugins {
+		logger := p.AppendLogger(appContext)
+		*multiLogger.Loggers = append(*multiLogger.Loggers, logger)
+	}
+
 	fiberLogger := (*appContext.Logger).Named("[server]")
 
 	// recover from errors in handlers
@@ -75,34 +88,36 @@ func NewServer(config _app.Config) *server {
 	// use swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
+	// init repositories
 	appContext.Repos.Log = _lRepo.NewLogRepository(appContext)
 	appContext.Repos.LogStream = _lsRepo.NewLogStreamRepository(appContext)
 	appContext.Repos.Clients = _cRepo.NewClientsMemoryRepository()
 	appContext.Repos.Subscriptions = _sRepo.NewSubscriptionsRepository(appContext)
 
+	// init use cases
 	appContext.UseCases.LogStream = _lsUseCase.NewLogStreamUseCase(appContext)
 	appContext.UseCases.Log = _lUseCase.NewLogUseCase(appContext)
 	appContext.UseCases.Clients = _cUseCase.NewClientsUseCase(appContext)
 
+	// init http handlers
 	_lsHttpHandler.NewLogStreamHandler(appContext)
 	_lHttpHandler.NewLogHandler(appContext)
 	_lsWsHandler.NewLogStreamWsHandler(appContext)
 	_cfHttpHandler.NewConfigHttpHandler(appContext)
 
+	// setup ping handler
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Send([]byte("pong"))
 	})
 
-	return &server
-}
-
-func (s *server) Start() {
+	// setup router plugins
 	for _, plugin := range *s.context.Plugins.RouterPlugins {
 		router := s.server.Group("/plugins/" + plugin.Name())
 		fmt.Println("setting up", plugin.Name())
 		plugin.SetupRouter(router, s.context)
 	}
 
+	// start server
 	log.Fatal(s.server.Listen(fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)))
 }
 
