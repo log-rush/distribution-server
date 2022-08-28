@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/websocket/v2 v2.0.21
 	github.com/google/uuid v1.3.0
 	github.com/log-rush/persistency-adapter-fs v0.1.1
-	github.com/log-rush/plugin-persistency v0.2.0
+	github.com/log-rush/plugin-persistency v0.2.1
 	github.com/swaggo/swag v1.8.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -29,7 +29,7 @@ require (
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/log-rush/go-client v0.1.0 // indirect
-	github.com/log-rush/plugin-server-logs v0.0.1 // indirect
+	github.com/log-rush/plugin-server-logs v0.0.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20220401102855-e56b59f40436 // indirect

@@ -71,8 +71,12 @@ github.com/log-rush/persistency-adapter-fs v0.1.1 h1:nimsQnEVM+Rwx+35i5wKlwL7s7O
 github.com/log-rush/persistency-adapter-fs v0.1.1/go.mod h1:qS7U2n050o/xf4jq89w8ObW6d2ekIhOJ/tua7zTZPEA=
 github.com/log-rush/plugin-persistency v0.2.0 h1:dB3rXysc5N7lQ8d2HWVRu+l8vOHEhItsCdElqTx9lUU=
 github.com/log-rush/plugin-persistency v0.2.0/go.mod h1:WXoSlT0tLDVmOIlgJgdvVMxC23ezuJsTLw8NPZXoxHM=
+github.com/log-rush/plugin-persistency v0.2.1 h1:lFmXx1A6sbIRTovADeYTZvKV5b7cU9Q7X+6FvwnOlDk=
+github.com/log-rush/plugin-persistency v0.2.1/go.mod h1:QOqLUYjivrTG3iw6uVJdRTESy3Nr7IDP8xpO3KhPQNo=
 github.com/log-rush/plugin-server-logs v0.0.1 h1:ysd2lP2HFlbQuKXffdKMmZ89dPo7C4OrXPD+fKJDy4M=
 github.com/log-rush/plugin-server-logs v0.0.1/go.mod h1:Zo/wQ3UYCQ/dXgnam0OTxu2scKqmmthfjE4++YC0yG8=
+github.com/log-rush/plugin-server-logs v0.0.2 h1:ZyDDkHuW0TdBCrFOpcC48jKYRwTGdNeohr6cNLrfQYg=
+github.com/log-rush/plugin-server-logs v0.0.2/go.mod h1:k57+Y6/vwSQsIwGmGadeRBRQS65oeZ+N/Rt4RvAvMRI=
 github.com/mailru/easyjson v0.0.0-20190614124828-94de47d64c63/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/mailru/easyjson v0.7.6/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
