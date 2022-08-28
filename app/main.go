@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"runtime"
 	"time"
 
-	"github.com/log-rush/distribution-server/domain"
 	"github.com/log-rush/distribution-server/pkg/app"
-	"github.com/log-rush/distribution-server/pkg/devkit"
 	"github.com/log-rush/distribution-server/pkg/distributionServer"
+	storageAdapterFs "github.com/log-rush/persistency-adapter-fs"
+	pluginPersistency "github.com/log-rush/plugin-persistency"
 )
 
 func main() {
@@ -29,32 +29,32 @@ func main() {
 
 	server := distributionServer.NewServer(config)
 
-	//adapter, err := storageAdapterFs.NewFSStorageAdapter(storageAdapterFs.Config{
-	//	BasePath:                "./_logs",
-	//	OpenHandleTimeout:       time.Minute * 10,
-	//	ForceUpdateOnMidnight:   false,
-	//	DateFormat:              "02_01_06",
-	//	GroupStreamsIntoFolders: true,
-	//	FilePermissions:         0744,
-	//})
-	//if err != nil {
-	//	log.Fatalf("cant init fs storage adapter\n")
-	//}
-	//
-	//plugin := pluginPersistency.NewPersistencyPlugin(pluginPersistency.Config{
-	//	Adapter:          adapter,
-	//	LogDelimiter:     "\n",
-	//	StreamsBlacklist: []string{},
-	//	StreamsWhitelist: []string{},
-	//})
+	adapter, err := storageAdapterFs.NewFSStorageAdapter(storageAdapterFs.Config{
+		BasePath:                "./_logs",
+		OpenHandleTimeout:       time.Minute * 10,
+		ForceUpdateOnMidnight:   false,
+		DateFormat:              "02_01_06",
+		GroupStreamsIntoFolders: true,
+		FilePermissions:         0744,
+	})
+	if err != nil {
+		log.Fatalf("cant init fs storage adapter\n")
+	}
 
-	//server.UsePlugin(plugin.Plugin)
+	plugin := pluginPersistency.NewPersistencyPlugin(pluginPersistency.Config{
+		Adapter:          adapter,
+		LogDelimiter:     "\n",
+		StreamsBlacklist: []string{},
+		StreamsWhitelist: []string{},
+	}).Plugin
 
-	server.UsePlugin(*devkit.NewPlugin("test-logger", nil, nil, func(context *app.Context) domain.Logger {
-		return devkit.NewLogger(func(level devkit.LogLevel, log string, args ...interface{}) {
-			fmt.Printf("> testlogger > [%s] %s \n", level, fmt.Sprintf(log, args...))
-		})
-	}))
+	server.UsePlugin(plugin)
+
+	// server.UsePlugin(devkit.NewPlugin("test-logger", nil, nil, func(context *app.Context) domain.Logger {
+	// 	return devkit.NewLogger(func(level devkit.LogLevel, log string, args ...interface{}) {
+	// 		fmt.Printf("> testlogger > [%s] %s \n", level, fmt.Sprintf(log, args...))
+	// 	})
+	// }))
 
 	// server.UsePlugin(devkit.NewPlugin("test", func(log logRush.Log) {}, func(router fiber.Router) {
 	// 	router.Get("/pong", func(c *fiber.Ctx) error {

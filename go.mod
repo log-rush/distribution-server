@@ -9,8 +9,7 @@ require (
 	github.com/gofiber/websocket/v2 v2.0.21
 	github.com/google/uuid v1.3.0
 	github.com/log-rush/persistency-adapter-fs v0.1.1
-	github.com/log-rush/plugin-persistency v0.1.0
-	github.com/log-rush/server-devkit/v2 v2.0.0
+	github.com/log-rush/plugin-persistency v0.2.0
 	github.com/swaggo/swag v1.8.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c

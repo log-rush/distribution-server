@@ -65,6 +65,11 @@ func (s *server) Start() {
 	}
 
 	fiberLogger := (*appContext.Logger).Named("[server]")
+	pluginLogger := (*appContext.Logger).Named("[plugin]")
+
+	for _, p := range *appContext.Plugins.LoggerPlugins {
+		pluginLogger.Debugf("active logger: %s", p.Name())
+	}
 
 	// recover from errors in handlers
 	app.Use(recover.New(recover.Config{
@@ -113,7 +118,7 @@ func (s *server) Start() {
 	// setup router plugins
 	for _, plugin := range *s.context.Plugins.RouterPlugins {
 		router := s.server.Group("/plugins/" + plugin.Name())
-		fmt.Println("setting up", plugin.Name())
+		pluginLogger.Debugf("setting up router: %s", plugin.Name())
 		plugin.SetupRouter(router, s.context)
 	}
 
@@ -125,22 +130,16 @@ func (s *server) Stop() error {
 	return s.server.Shutdown()
 }
 
-func (s *server) UsePlugin(plugin devkit.Plugin) {
+func (s *server) UsePlugin(plugin _app.Plugin) {
 	fmt.Println("using", plugin.Name())
-	if plugin.LogHandler != nil {
+	p := plugin.(*devkit.Plugin)
+	if p.LogHandler != nil {
 		*s.context.Plugins.LogPlugins = append(*s.context.Plugins.LogPlugins, plugin)
 	}
-	if plugin.LoggerHandler != nil {
+	if p.LoggerHandler != nil {
 		*s.context.Plugins.LoggerPlugins = append(*s.context.Plugins.LoggerPlugins, plugin)
 	}
-	if plugin.RouterHandler != nil {
+	if p.RouterHandler != nil {
 		*s.context.Plugins.RouterPlugins = append(*s.context.Plugins.RouterPlugins, plugin)
 	}
-}
-
-func (s *server) UseExternalPlugin(plugin _app.Plugin) {
-	fmt.Println("using", plugin.Name())
-	*s.context.Plugins.LogPlugins = append(*s.context.Plugins.LogPlugins, plugin)
-	*s.context.Plugins.LoggerPlugins = append(*s.context.Plugins.LoggerPlugins, plugin)
-	*s.context.Plugins.RouterPlugins = append(*s.context.Plugins.RouterPlugins, plugin)
 }
