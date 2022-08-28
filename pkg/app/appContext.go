@@ -23,6 +23,7 @@ type (
 		LogPlugins    *[]LogPlugin
 		RouterPlugins *[]RouterPlugin
 		LoggerPlugins *[]LoggerPlugin
+		Plugins       *[]BasePlugin
 	}
 
 	Context struct {
@@ -44,6 +45,7 @@ func NewAppContext(config Config, server *fiber.App, logger domain.Logger) *Cont
 			LogPlugins:    &[]LogPlugin{},
 			RouterPlugins: &[]RouterPlugin{},
 			LoggerPlugins: &[]LoggerPlugin{},
+			Plugins:       &[]BasePlugin{},
 		},
 		Repos: &AppRepos{
 			Log:           nil,

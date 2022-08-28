@@ -122,6 +122,35 @@ func (s *server) Start() {
 		plugin.SetupRouter(router, s.context)
 	}
 
+	// call plugin hooks
+	multiLogger.Info("calling hook: init")
+	for _, p := range *appContext.Plugins.Plugins {
+		p.OnInit(appContext)
+	}
+
+	defer func() {
+		multiLogger.Info("calling hook: deinit")
+		for _, p := range *appContext.Plugins.Plugins {
+			p.OnDeInit(appContext)
+		}
+	}()
+
+	app.Hooks().OnListen(func() error {
+		multiLogger.Info("calling hook: afterServe")
+		for _, p := range *appContext.Plugins.Plugins {
+			p.OnAfterServe(appContext)
+		}
+		return nil
+	})
+
+	app.Hooks().OnShutdown(func() error {
+		multiLogger.Info("calling hook: afterClose")
+		for _, p := range *appContext.Plugins.Plugins {
+			p.OnAfterClose(appContext)
+		}
+		return nil
+	})
+
 	// start server
 	log.Fatal(s.server.Listen(fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)))
 }
@@ -133,6 +162,8 @@ func (s *server) Stop() error {
 func (s *server) UsePlugin(plugin _app.Plugin) {
 	fmt.Println("using", plugin.Name())
 	p := plugin.(*devkit.Plugin)
+	*s.context.Plugins.Plugins = append(*s.context.Plugins.Plugins, plugin)
+
 	if p.LogHandler != nil {
 		*s.context.Plugins.LogPlugins = append(*s.context.Plugins.LogPlugins, plugin)
 	}

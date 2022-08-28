@@ -9,6 +9,7 @@ import (
 	"github.com/log-rush/distribution-server/pkg/distributionServer"
 	storageAdapterFs "github.com/log-rush/persistency-adapter-fs"
 	pluginPersistency "github.com/log-rush/plugin-persistency"
+	pluginServerLogs "github.com/log-rush/plugin-server-logs"
 )
 
 func main() {
@@ -49,6 +50,14 @@ func main() {
 	}).Plugin
 
 	server.UsePlugin(plugin)
+
+	loggingPlugin := pluginServerLogs.NewServerLogsPlugin(pluginServerLogs.Config{
+		StreamName: "server",
+		Id:         "server",
+		Key:        "super-secret",
+	}).Plugin
+
+	server.UsePlugin(loggingPlugin)
 
 	// server.UsePlugin(devkit.NewPlugin("test-logger", nil, nil, func(context *app.Context) domain.Logger {
 	// 	return devkit.NewLogger(func(level devkit.LogLevel, log string, args ...interface{}) {

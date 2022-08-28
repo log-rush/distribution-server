@@ -7,6 +7,10 @@ import (
 
 type BasePlugin interface {
 	Name() string
+	OnInit(context *Context)
+	OnAfterServe(context *Context)
+	OnAfterClose(context *Context)
+	OnDeInit(context *Context)
 }
 
 type Plugin interface {

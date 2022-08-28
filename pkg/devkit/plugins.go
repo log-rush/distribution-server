@@ -11,6 +11,20 @@ type Plugin struct {
 	LogHandler    app.HandleLog
 	RouterHandler app.SetupRouter
 	LoggerHandler app.AppendLogger
+	Hooks         PluginHooks
+}
+
+type PluginHooks struct {
+	OnInit       func(context *app.Context)
+	OnAfterServe func(context *app.Context)
+	OnAfterClose func(context *app.Context)
+	OnDeInit     func(context *app.Context)
+}
+
+type PluginHandlers struct {
+	LogHandler    app.HandleLog
+	RouterHandler app.SetupRouter
+	LoggerHandler app.AppendLogger
 }
 
 func (p Plugin) HandleLog(log domain.Log) {
@@ -29,17 +43,41 @@ func (p Plugin) Name() string {
 	return p.name
 }
 
+func (p Plugin) OnInit(context *app.Context) {
+	if p.Hooks.OnInit != nil {
+		p.Hooks.OnInit(context)
+	}
+}
+
+func (p Plugin) OnAfterServe(context *app.Context) {
+	if p.Hooks.OnAfterServe != nil {
+		p.Hooks.OnAfterServe(context)
+	}
+}
+
+func (p Plugin) OnAfterClose(context *app.Context) {
+	if p.Hooks.OnAfterClose != nil {
+		p.Hooks.OnAfterClose(context)
+	}
+}
+
+func (p Plugin) OnDeInit(context *app.Context) {
+	if p.Hooks.OnDeInit != nil {
+		p.Hooks.OnDeInit(context)
+	}
+}
+
 func NewPlugin(
 	name string,
-	logHandler app.HandleLog,
-	routerHandler app.SetupRouter,
-	appendLogger app.AppendLogger,
+	handlers PluginHandlers,
+	hooks PluginHooks,
 ) *Plugin {
 	p := Plugin{
 		name:          name,
-		LogHandler:    logHandler,
-		RouterHandler: routerHandler,
-		LoggerHandler: appendLogger,
+		LogHandler:    handlers.LogHandler,
+		RouterHandler: handlers.RouterHandler,
+		LoggerHandler: handlers.LoggerHandler,
+		Hooks:         hooks,
 	}
 
 	return &p
@@ -48,12 +86,14 @@ func NewPlugin(
 func NewLogPlugin(
 	name string,
 	logHandler app.HandleLog,
+	hooks PluginHooks,
 ) *Plugin {
 	p := Plugin{
 		name:          name,
 		LogHandler:    logHandler,
 		RouterHandler: nil,
 		LoggerHandler: nil,
+		Hooks:         hooks,
 	}
 
 	return &p
@@ -62,12 +102,14 @@ func NewLogPlugin(
 func NewRouterPlugin(
 	name string,
 	routerHandler app.SetupRouter,
+	hooks PluginHooks,
 ) *Plugin {
 	p := Plugin{
 		name:          name,
 		RouterHandler: routerHandler,
 		LogHandler:    nil,
 		LoggerHandler: nil,
+		Hooks:         hooks,
 	}
 
 	return &p
@@ -76,12 +118,14 @@ func NewRouterPlugin(
 func NewLoggerPlugin(
 	name string,
 	appendLogger app.AppendLogger,
+	hooks PluginHooks,
 ) *Plugin {
 	p := Plugin{
 		name:          name,
 		RouterHandler: nil,
 		LogHandler:    nil,
 		LoggerHandler: appendLogger,
+		Hooks:         hooks,
 	}
 
 	return &p
