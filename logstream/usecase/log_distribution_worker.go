@@ -102,11 +102,13 @@ func (w *logDistributionWorker) work() {
 	for {
 		select {
 		case job := <-w.jobs:
-			(*w.l).Debugf("[%d] worker received job", w.id)
+			(*w.l).Debugf("[%d] worker received job for %s (%d)", w.id, job.stream, len(job.logs))
 			wg := sync.WaitGroup{}
 			subscribers, err := (*w.repo).GetSubscribers(context.Background(), job.stream)
 			if err != nil {
+				(*w.l).Warnf("[%d] cant get subscribers for %s ", w.id, job.stream)
 				w.results <- err
+				continue
 			}
 
 			(*w.l).Debugf("[%d] sending to %d subscribers", w.id, len(subscribers))

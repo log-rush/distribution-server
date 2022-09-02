@@ -99,13 +99,13 @@ func (u *logStreamUseCase) UnregisterStream(ctx context.Context, id, key string)
 	errGroup.Go(func() error {
 		subscribers, err := u.sRepo.GetSubscribers(context, id)
 		if err != nil {
-			(*u.l).Warnf("error gettings stream subscribers %s: %s", id, err.Error())
+			(*u.l).Warnf("error getting stream subscribers %s: %s", id, err.Error())
 			// discard error since the stream might not had any subscribers
 			return nil
 		}
 		err = u.sRepo.RemoveStream(context, id)
 		if err != nil {
-			(*u.l).Errorf("error while delteting stream subscriptions %s: %s", id, err.Error())
+			(*u.l).Errorf("error while deleting stream subscriptions %s: %s", id, err.Error())
 			return err
 		}
 		for _, client := range subscribers {

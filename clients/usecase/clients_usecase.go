@@ -68,10 +68,10 @@ func (u *clientsUseCase) DestroyClient(ctx context.Context, id string) error {
 	errGroup.Go(func() error {
 		err := u.cRepo.Remove(context, id)
 		if err != nil {
-			(*u.l).Errorf("error while deleting %s client: %s", id, err.Error())
+			(*u.l).Errorf("[%s] error while deleting client: %s", id, err.Error())
 			return err
 		}
-		(*u.l).Infof("deleted client %s", id)
+		(*u.l).Infof("[%s] deleted client", id)
 		return nil
 	})
 

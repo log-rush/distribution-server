@@ -32,7 +32,7 @@ func (u *logUseCase) SendLog(ctx context.Context, streamId string, log *domain.L
 
 	stream, err := u.lsRepo.GetStream(context, streamId)
 	if err != nil {
-		(*u.l).Errorf("error while addding log: %s", err.Error())
+		(*u.l).Errorf("error while adding log to stream %s: %s", streamId, err.Error())
 		return err
 	}
 
@@ -55,7 +55,7 @@ func (u *logUseCase) SendLogBatch(ctx context.Context, streamId string, logs *[]
 
 	stream, err := u.lsRepo.GetStream(context, streamId)
 	if err != nil {
-		(*u.l).Errorf("error while batching logs: %s", err.Error())
+		(*u.l).Errorf("error while batching logs to stream %s: %s", streamId, err.Error())
 		return err
 	}
 

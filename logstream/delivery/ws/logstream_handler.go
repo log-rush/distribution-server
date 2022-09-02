@@ -65,6 +65,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 				return
 			case message := <-client.Send:
 				if message == nil {
+					(*h.l).Debugf("closing connection %s", client.ID)
 					client.Close <- true
 					return
 				}
@@ -82,6 +83,7 @@ func (h *logStreamWsHandler) Connect(conn *websocket.Conn) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived) {
 				(*h.l).Errorf("[%s] error while receiving message %s", client.ID, err)
 			}
+			(*h.l).Debugf("closing connection %s", client.ID)
 			client.Close <- true
 			break
 		}
